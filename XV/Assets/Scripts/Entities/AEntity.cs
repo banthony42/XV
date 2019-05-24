@@ -58,6 +58,21 @@ public abstract class AEntity : MonoBehaviour
 		mODS = iODS;
 	}
 
+	protected virtual void Start()
+	{
+		// Adding this to all ObjectEntities
+		if (sAllEntites == null)
+			sAllEntites = new List<AEntity>();
+		sAllEntites.Add(this);
+	}
+
+	protected virtual void OnDestroy()
+	{
+		if (sAllEntites != null)
+			sAllEntites.Remove(this);
+
+	}
+
 	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
 	{
 		mUIBubbleInfo = iBubbleInfo;
@@ -79,19 +94,7 @@ public abstract class AEntity : MonoBehaviour
 		return mUIBubbleInfo.CreateButton(iButtonInfo);
 	}
 
-    public void DestroyBubleInfoButton(UIBubbleInfoButton iButtonInfo)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
-    }
-
-    public void DestroyBubleInfoButton(string iTag)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iTag);
-    }
-
-    public static void ForEachEntities(Action<AEntity> iAction)
+	public static void ForEachEntities(Action<AEntity> iAction)
 	{
 		if (iAction == null)
 			return;

@@ -63,12 +63,9 @@ public class ObjectEntity : AEntity
 		}
 	}
 
-	protected void Start()
+	protected override void Start()
 	{
-		// Adding this to all ObjectEntities
-		if (sAllEntites == null)
-			sAllEntites = new List<AEntity>();
-		sAllEntites.Add(this);
+		base.Start();
 
 		// Set tag
 		gameObject.tag = TAG;
@@ -194,10 +191,10 @@ public class ObjectEntity : AEntity
 	}
 
 	// Called by unity only !
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-		if (sAllEntites != null)
-			sAllEntites.Remove(this);
+		base.OnDestroy();
+
 		Destroy(mCenteredParent);
 	}
 

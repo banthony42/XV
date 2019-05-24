@@ -271,27 +271,37 @@ public class GameManager : MonoBehaviour
 		return oGameObject;
 	}
 
-	public void UnloadScene()
+	public IEnumerator UnloadSceneAsync()
 	{
+		Debug.Log("Unload scene");
 		AEntity[] lObjectEntities = AEntity.AllEntities;
 
 		foreach (AEntity lObjectEntity in lObjectEntities) {
+			
 			lObjectEntity.Dispose();
 		}
-		if (HumanEntity.Instance != null)
-			HumanEntity.Instance.Dispose();
+
+		Debug.Log("Will wait");
+		while (AEntity.AllEntities.Length != 0) {
+			Debug.Log(AEntity.AllEntities.Length);
+			yield return null;
+		}
+		Debug.Log(AEntity.AllEntities.Length);
 		mCurrentDataScene = null;
 		XV_UI.Instance.SceneNameText.text = "-";
 	}
 
 	public void LoadScene(DataScene iDataScene)
 	{
+		Debug.Log("Load scene");
 		StartCoroutine(LoadSceneAsync(iDataScene));
 	}
 
 	private IEnumerator LoadSceneAsync(DataScene iDataScene)
 	{
-		UnloadScene();
+		Debug.Log("Load scene async");
+		yield return UnloadSceneAsync();
+		Debug.Log("Finished to wait");
 		mCurrentDataScene = iDataScene;
 		XV_UI.Instance.SceneNameText.text = "Scene: " + iDataScene.SceneName.Replace(".xml", "");
 
