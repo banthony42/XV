@@ -67,6 +67,14 @@ public sealed class DataScene
 		DataObjects.Add(iODS);
 	}
 
+	public void SetHDS(HumanDataScene iHDS)
+	{
+		if (SceneName == DEBUG_NAME)
+			return;
+
+		Human = iHDS;
+	}
+
 	static public string Serialize(DataScene iDataScene)
 	{
 		string lFolderPath = Application.dataPath + RES_PATH;

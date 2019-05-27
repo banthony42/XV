@@ -220,7 +220,7 @@ public class HumanEntity : AEntity
 	public HumanEntity RemoveEntity()
 	{
 		if (mHDS != null && mDataScene.Human != null) {
-			mDataScene.Human = null;
+			mDataScene.SetHDS(null);
 			mDataScene.Serialize();
 		}
 		return this;
@@ -232,7 +232,7 @@ public class HumanEntity : AEntity
 
 		mHDS = (HumanDataScene)iODS;
 		if (mDataScene.Human != mHDS) {
-			mDataScene.Human = mHDS;
+			mDataScene.SetHDS(mHDS);
 			mDataScene.Serialize();
 		}
 	}
