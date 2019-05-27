@@ -63,9 +63,12 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	protected override void Start()
+	private void Start()
 	{
-		base.Start();
+		// Adding this to all ObjectEntities
+		if (sAllEntites == null)
+			sAllEntites = new List<AEntity>();
+		sAllEntites.Add(this);
 
 		mMovableEntity = GetComponent<MovableEntity>();
 		mAnimator = GetComponent<Animator>();
@@ -163,15 +166,14 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	protected override void OnDestroy()
+	private void OnDestroy()
 	{
-		base.OnDestroy();
 
-		Instance = null;
 	}
 
 	public override void Dispose()
 	{
+		Instance = null;
 		Destroy(gameObject);
 	}
 

@@ -143,7 +143,7 @@ public sealed class UISceneBrowser : MonoBehaviour
 				string lSelectedDataSceneName = mLastFileUIParamSelected.Text.text;
 				string lCurrentDataSceneName = GameManager.Instance.CurrentDataScene.SceneName;
 				if (lSelectedDataSceneName == lCurrentDataSceneName)
-					GameManager.Instance.UnloadSceneAsync();
+					GameManager.Instance.UnloadScene();
 			}
 
 			UpdateFiles();

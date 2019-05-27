@@ -184,12 +184,8 @@ public class GameManager : MonoBehaviour
 		lTopParent.name = iODS.Name;
 		lTopParent.layer = oGameObject.layer;
 
-
-
 		// Setting positions
 		lTopParent.transform.position = iODS.Position + lBounds.center;
-
-		return oGameObject;
 
 		// Put the OffsetRotation as a child of the TopParent GameObject
 		lOffsetRotation.transform.parent = lTopParent.transform;
@@ -275,19 +271,15 @@ public class GameManager : MonoBehaviour
 		return oGameObject;
 	}
 
-	public IEnumerator UnloadSceneAsync()
+	public void UnloadScene()
 	{
 		AEntity[] lObjectEntities = AEntity.AllEntities;
 
 		foreach (AEntity lObjectEntity in lObjectEntities) {
-
 			lObjectEntity.Dispose();
 		}
-
-		while (AEntity.AllEntities.Length != 0) {
-			Debug.Log(AEntity.AllEntities.Length);
-			yield return null;
-		}
+		if (HumanEntity.Instance != null)
+			HumanEntity.Instance.Dispose();
 		mCurrentDataScene = null;
 		XV_UI.Instance.SceneNameText.text = "-";
 	}
@@ -299,7 +291,7 @@ public class GameManager : MonoBehaviour
 
 	private IEnumerator LoadSceneAsync(DataScene iDataScene)
 	{
-		yield return UnloadSceneAsync();
+		UnloadScene();
 		mCurrentDataScene = iDataScene;
 		XV_UI.Instance.SceneNameText.text = "Scene: " + iDataScene.SceneName.Replace(".xml", "");
 
