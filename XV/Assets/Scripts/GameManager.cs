@@ -89,6 +89,8 @@ public class GameManager : MonoBehaviour
 
 		Recorder = GetComponent<Recorder>();
 
+
+		// //Record on wake up
 		//StartCoroutine(Utils.WaitForAsync(1F, () => {
 
 		//	Recorder.StartRecord();
@@ -112,10 +114,8 @@ public class GameManager : MonoBehaviour
 				if (Physics.Raycast(lRay, out lHit)) {
 					if (lHit.transform == null)
 						SelectedEntity = null;
-					else if (lHit.transform.tag != ObjectEntity.TAG && lHit.transform.tag != UIBubbleInfo.TAG) {
-						Debug.Log(lHit.transform.tag);
+					else if (lHit.transform.tag != ObjectEntity.TAG && lHit.transform.tag != UIBubbleInfo.TAG)
 						SelectedEntity = null;
-					}
 				} else
 					SelectedEntity = null;
 			}
@@ -193,18 +193,24 @@ public class GameManager : MonoBehaviour
 		// Setting positions
 		lOffsetRotation.transform.position = Vector3.zero;
 		lOffsetRotation.transform.localPosition = Vector3.zero;
+
+
+		//////////////// DEBUG PART clem
 		if (lParameters != null)
 			lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
 		else
 			lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
+		//////////////// DEBUG PART clem
+
 
 		// Put the ObjectEntity as a child of the OffsetRotation GameObject
 		oGameObject.transform.parent = lOffsetRotation.transform;
 
-		// Setting the offset placement of the ObjectEntity regarding the new parent.
-		//oGameObject.transform.position = iODS.Position;
+		oGameObject.transform.position = iODS.Position;
 		oGameObject.transform.localEulerAngles = Vector3.zero;
+
 		oGameObject.transform.localPosition = -lBounds.center;
+
 		oGameObject.name = iODS.PrefabName + "_mesh";
 		oGameObject.transform.localScale = iODS.Scale;
 		lTopParent.transform.eulerAngles = iODS.Rotation;
@@ -271,15 +277,18 @@ public class GameManager : MonoBehaviour
 		return oGameObject;
 	}
 
-	public void UnloadScene()
+	public IEnumerator UnloadSceneAsync()
 	{
 		AEntity[] lObjectEntities = AEntity.AllEntities;
 
 		foreach (AEntity lObjectEntity in lObjectEntities) {
+
 			lObjectEntity.Dispose();
 		}
-		if (HumanEntity.Instance != null)
-			HumanEntity.Instance.Dispose();
+
+		while (AEntity.AllEntities.Length != 0)
+			yield return null;
+		
 		mCurrentDataScene = null;
 		XV_UI.Instance.SceneNameText.text = "-";
 	}
@@ -291,7 +300,7 @@ public class GameManager : MonoBehaviour
 
 	private IEnumerator LoadSceneAsync(DataScene iDataScene)
 	{
-		UnloadScene();
+		yield return UnloadSceneAsync();
 		mCurrentDataScene = iDataScene;
 		XV_UI.Instance.SceneNameText.text = "Scene: " + iDataScene.SceneName.Replace(".xml", "");
 
