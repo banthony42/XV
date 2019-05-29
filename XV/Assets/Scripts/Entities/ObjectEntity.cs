@@ -26,6 +26,8 @@ public class ObjectEntity : AEntity
 	private GameObject mCenteredParent;
 	private GameObject mOffsetRotationParent;
 
+	private GameObject mOutlinedObject;
+
 	public bool IsBusy { get { return mBusy; } }
 
 	public Vector3 Center
@@ -39,10 +41,8 @@ public class ObjectEntity : AEntity
 
 		set
 		{
-			if (!value) {
-				Debug.Log("ObjectEntity : " + mODS.Name + "Has been unselected");
+			if (!value)
 				mUIBubbleInfo.Hide();
-			}
 			mSelected = value;
 		}
 	}
@@ -63,12 +63,9 @@ public class ObjectEntity : AEntity
 		}
 	}
 
-	protected void Start()
+	protected override void Start()
 	{
-		// Adding this to all ObjectEntities
-		if (sAllEntites == null)
-			sAllEntites = new List<AEntity>();
-		sAllEntites.Add(this);
+		base.Start();
 
 		// Set tag
 		gameObject.tag = TAG;
@@ -78,6 +75,8 @@ public class ObjectEntity : AEntity
 		mUIBubbleInfo.GetComponent<RectTransform>().localPosition = new Vector3(mCenter.x, mSize.y + 1, mCenter.z);
 
 		StartCoroutine(PostPoppingAsync());
+
+		//mOutlinedObject = OutlineObject();
 	}
 
 	private void Update()
@@ -194,10 +193,10 @@ public class ObjectEntity : AEntity
 	}
 
 	// Called by unity only !
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-		if (sAllEntites != null)
-			sAllEntites.Remove(this);
+		base.OnDestroy();
+
 		Destroy(mCenteredParent);
 	}
 
@@ -208,15 +207,15 @@ public class ObjectEntity : AEntity
 			StartCoroutine(DestroyObjectsTimedAsync());
 	}
 
+	public void EnableOutlineMode()
+	{
+		mOutlinedObject.transform.position = transform.position;
+		mOutlinedObject.transform.rotation = transform.rotation;
+	}
+
 	private IEnumerator DestroyObjectsTimedAsync()
 	{
 		mBusy = true;
-
-		// Detach from parent & delete parent
-		//if (transform.parent != null) {
-		//    transform.parent = null;
-		//    Destroy(mCenteredParent);
-		//}
 
 		Transform[] lTransforms = gameObject.GetComponentsInChildren<Transform>();
 		Array.Reverse(lTransforms);
@@ -233,7 +232,6 @@ public class ObjectEntity : AEntity
 		}
 		mBusy = false;
 	}
-
 
 	public ObjectEntity StartAnimation(bool iAnimatedPopping)
 	{

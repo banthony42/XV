@@ -95,6 +95,13 @@ public class HumanEntity : AEntity
 			}
 		});
 
+		UIBubbleInfo.CreateButton(new UIBubbleInfoButton {
+			Text = "Interact with",
+			ClickAction = (iObjectEntity) => {
+
+			}
+		});
+
 		mMovableEntity.SetParent(this.gameObject, this.gameObject);
 		mMovableEntity.SetEntity(this);
 		mMovableEntity.OnEndMovement.Add(OnEndMovement);
@@ -112,7 +119,6 @@ public class HumanEntity : AEntity
 	{
 		mAnimator.SetFloat("Forward", 0.5F);
 	}
-
 
 	private void Update()
 	{

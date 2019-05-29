@@ -58,6 +58,21 @@ public abstract class AEntity : MonoBehaviour
 		mODS = iODS;
 	}
 
+	protected virtual void Start()
+	{
+		// Adding this to all ObjectEntities
+		if (sAllEntites == null)
+			sAllEntites = new List<AEntity>();
+		sAllEntites.Add(this);
+	}
+
+	protected virtual void OnDestroy()
+	{
+		if (sAllEntites != null)
+			sAllEntites.Remove(this);
+
+	}
+
 	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
 	{
 		mUIBubbleInfo = iBubbleInfo;
@@ -70,7 +85,7 @@ public abstract class AEntity : MonoBehaviour
 		return this;
 	}
 
-	public Button CreateBubleInfoButton(UIBubbleInfoButton iButtonInfo)
+	public Button CreateBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
 	{
 		if (mUIBubbleInfo == null) {
 			Debug.LogError("[AENTITY] mUIBubbleInfo is null when create button");
@@ -79,19 +94,19 @@ public abstract class AEntity : MonoBehaviour
 		return mUIBubbleInfo.CreateButton(iButtonInfo);
 	}
 
-    public void DestroyBubleInfoButton(UIBubbleInfoButton iButtonInfo)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
-    }
+	public void DestroyBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
+	}
 
-    public void DestroyBubleInfoButton(string iTag)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iTag);
-    }
+	public void DestroyBubbleInfoButton(string iTag)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iTag);
+	}
 
-    public static void ForEachEntities(Action<AEntity> iAction)
+	public static void ForEachEntities(Action<AEntity> iAction)
 	{
 		if (iAction == null)
 			return;
@@ -99,6 +114,95 @@ public abstract class AEntity : MonoBehaviour
 		AEntity[] lEntities = AllEntities;
 		foreach (AEntity lEntity in lEntities)
 			iAction(lEntity);
+	}
+
+
+	private GameObject InstantiateMaterialObject(string iMaterialName)
+	{
+		return null;
+	}
+
+	public GameObject OutlineObject()
+	{
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+			Debug.Log("pass1");
+
+			// Perform this action on each child of iObject, which is oGhostObject
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+
+				// TODO
+				// Supprimer les deux fonctions 
+				// Pour mettre en evidence, on laisse activé tout ce qui est intertable (pour trouver ca, utiliser AInteraction.CanInteractWith())
+				// Et desactiver tout ce qui n'est pas interactable. 
+				// Creer son script Interactable a l'humain 
+				// ps : supprimer le createButton dans HumanEntity et le mettre dans HumanInteractable comme dans ChariotPlateForm.cs
+
+
+
+				//lR.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+
+				//Material[] lMaterials = lR.materials;
+
+				//foreach (Material lMaterial in lMaterials) {
+				//	Debug.Log("pass2");
+				//	Color lColor = lMaterial.color;
+				//	lColor.a = 0.3F;
+				//	lMaterial.color = lColor;
+
+				//	lMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+				//	lMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+				//	lMaterial.SetInt("_ZWrite", 0);
+
+				//	lMaterial.DisableKeyword("_ALPHATEST_ON");
+				//	lMaterial.EnableKeyword("_ALPHABLEND_ON");
+				//	lMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+				//	lMaterial.renderQueue = 10000;
+
+				//}
+
+				//lR.materials = lMaterials;
+			}
+		});
+
+
+		return null;
+	}
+
+	public GameObject ResetOutlineObject()
+	{
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+
+			// Perform this action on each child of iObject, which is oGhostObject
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+
+				Material[] lMaterials = lR.materials;
+
+				foreach (Material lMaterial in lMaterials) {
+					Debug.Log("pass2");
+					Color lColor = lMaterial.color;
+					lColor.a = 1F;
+					lMaterial.color = lColor;
+
+					lMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+					lMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+					lMaterial.SetInt("_ZWrite", 1);
+					lMaterial.DisableKeyword("_ALPHATEST_ON");
+					lMaterial.DisableKeyword("_ALPHABLEND_ON");
+					lMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+					lMaterial.renderQueue = -1;
+
+				}
+
+				lR.materials = lMaterials;
+			}
+		});
+
+
+		return null;
 	}
 
 	// This function Instantiate associated Model & make it child of OffsetRotation
@@ -133,13 +237,13 @@ public abstract class AEntity : MonoBehaviour
 		Utils.BrowseChildRecursively(oGhostObject, (iObject) => {
 
 			// Perform this action on each child of iObject, which is oGhostObject
-			Renderer r = iObject.GetComponent<Renderer>();
-			if (r != null) {
-				Material[] o = new Material[r.materials.Length];
-				for (int i = 0; i < o.Length; i++) {
-					o.SetValue(lGhostMaterial, i);
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+				Material[] lO = new Material[lR.materials.Length];
+				for (int lIndex = 0; lIndex < lO.Length; lIndex++) {
+					lO.SetValue(lGhostMaterial, lIndex);
 				}
-				r.materials = o;
+				lR.materials = lO;
 			}
 
 			MonoBehaviour[] lMBs = iObject.GetComponents<MonoBehaviour>();
