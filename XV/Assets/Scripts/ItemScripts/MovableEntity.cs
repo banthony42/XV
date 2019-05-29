@@ -254,6 +254,8 @@ public sealed class MovableEntity : MonoBehaviour
 
 		Vector3 lHitPoint = Vector3.zero;
 		//float lActionDuration = 0F;
+		float lBaseSpeed = 3.5F;
+		float lBaseAccel = 8F;
 
 		// Check the hit.point clicked is the ground
 		if ((GetHitPointFromMouseClic(ref lHitPoint, "scene"))) {
@@ -289,8 +291,8 @@ public sealed class MovableEntity : MonoBehaviour
 				mAgent.enabled = true;
 				// Update speed
 				mAgent.ResetPath();
-				mAgent.speed *= iInfo.Speed;
-				mAgent.acceleration *= iInfo.Speed;
+				mAgent.speed = lBaseSpeed* AnimationInfo.sGlobalSpeed;
+				mAgent.acceleration = lBaseAccel * AnimationInfo.sGlobalSpeed;
 				mAgent.SetDestination(lHitPoint);
 
 				// Check if we have reached the destination
@@ -345,7 +347,7 @@ public sealed class MovableEntity : MonoBehaviour
 			}
 
 			// Update rotation performed according to speed
-			mRotationPerformed += Time.deltaTime * iInfo.Speed;
+			mRotationPerformed += Time.deltaTime * AnimationInfo.sGlobalSpeed;
 
 			// Rotate to the correct amount
 			mCenteredParent.transform.rotation = Quaternion.Slerp(mCenteredParent.transform.rotation, iTarget, mRotationPerformed / lActionDuration);

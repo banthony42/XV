@@ -210,6 +210,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 320415993252390454, guid: 5ceef31ca490b46869155fec3971d510,
+        type: 2}
+      propertyPath: m_SceneBindings.Array.data[460].key
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 224529642109030688, guid: 5ceef31ca490b46869155fec3971d510,
         type: 2}
       propertyPath: m_AnchorMax.x
