@@ -38,8 +38,8 @@ public sealed class UIModel : MonoBehaviour,
 		if (mElementText == null)
 			Debug.LogError("[ERROR] Ui Model element doesn't contain Text!");
 
-		if (Model.HumanModel)
-			Model.GameObject.GetComponent<HumanEntity>().enabled = false;
+        if (Model.HumanModel)
+            Model.GameObject.GetComponent<HumanEntity>().enabled = false;
 	}
 
 	private void Update()
@@ -102,19 +102,19 @@ public sealed class UIModel : MonoBehaviour,
 	// On End restore Layer to dropable, build the object using selectedElement, delete SelectedElement.
 	public void OnEndDrag(PointerEventData eventData)
 	{
-		if (!Model.HumanModel) {
-			ObjectDataScene lODS = new ObjectDataScene {
-				Name = mElementText.text,
-				PrefabName = mElementText.text,
-				Type = Model.Type,
-				Position = mSelectedElement.transform.position,
-				Rotation = Model.GameObject.transform.rotation.eulerAngles,
-				Scale = mSelectedElement.transform.localScale,
-			};
+        if (!Model.HumanModel) {
+            ObjectDataScene lODS = new ObjectDataScene {
+                Name = mElementText.text,
+                PrefabName = mElementText.text,
+                Type = Model.Type,
+                Position = mSelectedElement.transform.position,
+                Rotation = Model.GameObject.transform.rotation.eulerAngles,
+                Scale = mSelectedElement.transform.localScale,
+            };
 
-			GameManager.Instance.BuildObject(lODS);
-			Destroy(mSelectedElement);
-		} else if (HumanEntity.Instance == null) {
+            GameManager.Instance.BuildObject(lODS);
+            Destroy(mSelectedElement);
+        } else if (HumanEntity.Instance == null) {
 
 			HumanDataScene lHDS = new HumanDataScene {
 				Name = mElementText.text,
@@ -137,43 +137,20 @@ public sealed class UIModel : MonoBehaviour,
 		if (mSelectedElement != null && mLockSelection)
 			return;
 
-		if (Model.HumanModel && HumanEntity.Instance != null)
-			return;
 
+        if (Model.HumanModel && HumanEntity.Instance != null)
+			return;
+        
 		// Instantiate temporary object during drag & drop, it will follow mouse
 		if ((mSelectedElement = Instantiate(Model.GameObject)) == null)
 			return;
 
 		// Retrieve parameters for this item
-
-		// Cause a offset bug take care to test all the objects if you want uncomment 
 		EntityParameters lParameters;
-
-		mCentroid = Utils.ComputeBoundingBox(mSelectedElement).center;
-
 		if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
 			// Update orientation
-
-			if (lParameters.ResetPositionOffset) {
-				Debug.Log("1");
-
-				//////////////// DEBUG PART clem
-				//GameObject lOffsetRotation = new GameObject();
-				//lOffsetRotation.name = mSelectedElement.name;
-				//lOffsetRotation.layer = mSelectedElement.layer;
-				//lOffsetRotation.transform.position = mSelectedElement.transform.position - new Vector3(mCentroid.x, 0, mCentroid.z);
-				//lOffsetRotation.transform.localPosition = new Vector3(-mCentroid.x, 0, -mCentroid.z) * 2;
-
-				//mSelectedElement.transform.parent = lOffsetRotation.transform;
-				//mSelectedElement.transform.eulerAngles = lParameters.Orientation;
-
-				//mSelectedElement = lOffsetRotation;
-				//////////////// DEBUG PART clem
-
-			}
-
-		} else
-			mSelectedElement.transform.eulerAngles = Vector3.zero;
+			mSelectedElement.transform.eulerAngles = lParameters.Orientation;
+		}
 
 		mSelectedElement.SetActive(false);
 		Utils.SetLayerRecursively(mSelectedElement, LayerMask.NameToLayer("Ignore Raycast"));
@@ -183,6 +160,7 @@ public sealed class UIModel : MonoBehaviour,
 			Debug.LogError("[UI_MODEL] Allocation Error.");
 			return;
 		}
-		//Debug.Break();
+
+		mCentroid = Utils.ComputeBoundingBox(mSelectedElement).center;
 	}
 }
