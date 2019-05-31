@@ -99,13 +99,30 @@ public class HumanEntity : AEntity
 			Text = "Interact with",
 			ClickAction = (iObjectEntity) => {
 
+
+				AEntity.ForEachEntities((AEntity obj) => obj.OutlineObject());
+
+				//List<GameObject> lGameObjects = new List<GameObject>();
+
+				//foreach (AEntity lEntity in AEntity.AllEntities) {
+				//	lGameObjects.Add(lEntity.gameObject);
+				//}
+
+				//new System.Threading.Thread(() => {
+
+				//	for (int i = 0; i < lGameObjects.Count; i++) {
+				//		AEntity.AllEntities[i].OutlineObject(lGameObjects[i]);
+				//	}
+
+				//}).Start();
+
 			}
 		});
 
 		mMovableEntity.SetParent(this.gameObject, this.gameObject);
 		mMovableEntity.SetEntity(this);
-		mMovableEntity.OnEndMovement.Add(OnEndMovement);
 		mMovableEntity.OnStartMovement.Add(OnStartMovement);
+		mMovableEntity.OnEndMovement.Add(OnEndMovement);
 
 		StartCoroutine(PostPoppingAsync());
 	}
