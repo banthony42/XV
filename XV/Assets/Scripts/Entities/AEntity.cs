@@ -121,9 +121,12 @@ public abstract class AEntity : MonoBehaviour
             iAction(lEntity);
     }
 
-    public static void HideNoInteractable(EntityParameters.EntityType[] iTypes)
+    public static void HideNoInteractable(EntityParameters.EntityType[] iTypes,
+        AEntity iIgnored = null)
     {
         ForEachEntities((iEntity) => {
+            if (iEntity == iIgnored)
+                return;
             if (iEntity.mEntityParameters != null) {
                 foreach (EntityParameters.EntityType lType in iTypes) {
                     if (iEntity.mEntityParameters.Type == lType) {

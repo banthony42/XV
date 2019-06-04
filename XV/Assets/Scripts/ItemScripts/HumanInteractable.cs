@@ -1,12 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
+
+[RequireComponent(typeof(MovableEntity))]
 public class HumanInteractable : AInteraction
 {
+
+    private MovableEntity mMovableEntity;
+
+    protected override void Start()
+    {
+        base.Start();
+
+        mMovableEntity = GetComponent<MovableEntity>();
+
+    }
+
     protected override void PostPoppingEntity()
     {
-
         CreateInteraction(new ItemInteraction()
         {
             Name = "TakeObject",
@@ -23,12 +36,12 @@ public class HumanInteractable : AInteraction
 
     private void OnClickTakeObject(AEntity iEntity)
     {
-        StartCoroutine(InteractionWaitForTargetAsync("TakeAnObject"));
+        StartCoroutine(InteractionWaitForTargetAsync("TakeObject"));
     }
 
     private IEnumerator InteractionWaitForTargetAsync(string iInteractionName)
     {
-        AEntity.HideNoInteractable(GetItemInteraction(iInteractionName).InteractWith);
+        AEntity.HideNoInteractable(GetItemInteraction(iInteractionName).InteractWith, mEntity);
         yield return new WaitWhile(() => {
 
             if (Input.GetMouseButtonDown(0))
@@ -45,7 +58,7 @@ public class HumanInteractable : AInteraction
                     EntityParameters lEntityParam;
                     if ((lEntityParam = lHit.collider.gameObject.GetComponentInParent<EntityParameters>()) == null)
                     {
-                        Debug.LogError("[TARGET SELECTOR] Click on Entity !");
+                        Debug.LogWarning("[TARGET SELECTOR] Exit target selector !");
                         return false;
                     }
 
@@ -61,7 +74,7 @@ public class HumanInteractable : AInteraction
                         TimelineManager.Instance.AddAnimation(gameObject, TakeObject);
                         return false;
                     }
-                    Debug.LogError("[TARGET SELECTOR] The object you click on is not interactable with this object !");
+                    Debug.LogWarning("[TARGET SELECTOR] The object you click on is not interactable with this object !");
                 }
 
                 return false;
@@ -74,7 +87,17 @@ public class HumanInteractable : AInteraction
     private bool TakeObject(AnimationInfo iAnimInfo)
     {
 
-        return true;
+        if (mMovableEntity.Move(
+            //((AEntity)iAnimInfo.Parameters.AnimationTarget).transform.position,
+            Vector3.zero,
+            iAnimInfo) == false)
+            return false;
+
+        // attendre le addInteraction de louis, capable de prendre un nombre exaustif d'actions
+        
+
+
+        return false;
     }
 
 }

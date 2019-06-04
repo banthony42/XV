@@ -138,11 +138,11 @@ public abstract class AInteraction : MonoBehaviour
 
     private EntityParameters mParameters;
 
-    private AEntity mEntity;
-
     private List<ItemInteraction> mItemInteractions;
 
-    private void Start()
+    protected AEntity mEntity;
+
+    protected virtual void Start()
     {
         mEntity = GetComponent<AEntity>();
         mParameters = GetComponent<EntityParameters>();
@@ -163,7 +163,6 @@ public abstract class AInteraction : MonoBehaviour
             UpdateAvailableInteraction();
         });
         
-        Debug.Log("Lol");
         mItemInteractions = new List<ItemInteraction>();
 
         int lLenght = (int)EntityParameters.EntityType.COUNT;
@@ -176,7 +175,6 @@ public abstract class AInteraction : MonoBehaviour
 
         if (sEntityTypeCounter == null)
             sEntityTypeCounter = new int[(int)EntityParameters.EntityType.COUNT];
-
     }
 
     protected abstract void PostPoppingEntity();
