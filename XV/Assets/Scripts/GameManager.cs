@@ -293,6 +293,11 @@ public class GameManager : MonoBehaviour
 		XV_UI.Instance.SceneNameText.text = "-";
 	}
 
+    public void UnloadScene()
+    {
+
+    }
+
 	public void LoadScene(DataScene iDataScene)
 	{
 		StartCoroutine(LoadSceneAsync(iDataScene));

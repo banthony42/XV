@@ -189,9 +189,9 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	private void OnDestroy()
+	protected  override void OnDestroy()
 	{
-
+        base.OnDestroy();
 	}
 
 	public override void Dispose()

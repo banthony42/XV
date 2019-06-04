@@ -120,7 +120,7 @@ public sealed class MovableEntity : MonoBehaviour
 
 				// Add Move button & Keep track of the button image to edit color
 				Button lButton;
-				lButton = iObj.CreateBubleInfoButton(new UIBubbleInfoButton {
+				lButton = iObj.CreateBubbleInfoButton(new UIBubbleInfoButton {
 					Text = "Move",
 					ClickAction = (iObject) => {
 						Debug.LogWarning("Deplacer: " + iObject.name + " has been clicked");
@@ -130,7 +130,7 @@ public sealed class MovableEntity : MonoBehaviour
 				mMoveButtonColor = lButton.GetComponent<Image>();
 
 				// Add Rotate Button & Keep track of the button image to edit color
-				lButton = iObj.CreateBubleInfoButton(new UIBubbleInfoButton {
+				lButton = iObj.CreateBubbleInfoButton(new UIBubbleInfoButton {
 					Text = "Rotate",
 					ClickAction = (iObject) => {
 						Debug.LogWarning("Orienter: " + iObject.name + " has been clicked");

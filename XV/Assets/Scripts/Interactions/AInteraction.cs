@@ -93,7 +93,7 @@ public abstract class AInteraction : MonoBehaviour
             if (!mIsDisplayed) {
                 mIsDisplayed = true;
                 if (mBindedObjectEntity != null) {
-                    mBindedObjectEntity.CreateBubleInfoButton(Button);
+                    mBindedObjectEntity.CreateBubbleInfoButton(Button);
                     if (OnDisplay != null)
                         OnDisplay();
                 }
@@ -106,7 +106,7 @@ public abstract class AInteraction : MonoBehaviour
             if (mIsDisplayed) {
                 mIsDisplayed = false;
                 if (mBindedObjectEntity != null) {
-                    mBindedObjectEntity.DestroyBubleInfoButton(Button);
+                    mBindedObjectEntity.DestroyBubbleInfoButton(Button);
                     if (OnHide != null)
                         OnHide();
                 }

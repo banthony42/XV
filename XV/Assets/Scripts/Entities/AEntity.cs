@@ -70,7 +70,6 @@ public abstract class AEntity : MonoBehaviour
 	{
 		if (sAllEntites != null)
 			sAllEntites.Remove(this);
-
 	}
 
 	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
