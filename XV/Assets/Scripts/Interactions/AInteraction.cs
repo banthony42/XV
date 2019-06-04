@@ -71,9 +71,9 @@ public abstract class AInteraction : MonoBehaviour
         /// </summary>
         public bool IsDisplayed { get { return mIsDisplayed; } }
 
-        private ObjectEntity mBindedObjectEntity;
+        private AEntity mBindedObjectEntity;
 
-        internal ObjectEntity BindedObjectEntity { set { mBindedObjectEntity = value; } }
+        internal AEntity BindedObjectEntity { set { mBindedObjectEntity = value; } }
 
         /// <summary>
         /// Parameters for an Animation, with Animation's code, UI Button and Subscriptions.
@@ -138,12 +138,32 @@ public abstract class AInteraction : MonoBehaviour
 
     private EntityParameters mParameters;
 
-    private ObjectEntity mObjectEntity;
+    private AEntity mEntity;
 
     private List<ItemInteraction> mItemInteractions;
 
     private void Start()
     {
+        mEntity = GetComponent<AEntity>();
+        mParameters = GetComponent<EntityParameters>();
+
+        if (mEntity == null || mParameters == null) {
+            enabled = false;
+            return;
+        }
+
+        // Add all this code to the PostPopping callback of ObjectEntity
+        mEntity.PostPoppingAction.Add(() => {
+            // Increase the entity counter with the type of this new ObjectEntity
+            AddType();
+
+            // Child post popping
+            PostPoppingEntity();
+
+            UpdateAvailableInteraction();
+        });
+        
+        Debug.Log("Lol");
         mItemInteractions = new List<ItemInteraction>();
 
         int lLenght = (int)EntityParameters.EntityType.COUNT;
@@ -157,28 +177,6 @@ public abstract class AInteraction : MonoBehaviour
         if (sEntityTypeCounter == null)
             sEntityTypeCounter = new int[(int)EntityParameters.EntityType.COUNT];
 
-    }
-
-    public AInteraction SetEntityParameters(EntityParameters iParameters)
-    {
-        mParameters = iParameters;
-        return this;
-    }
-
-    public AInteraction SetObjectEntity(ObjectEntity iObjectEntity)
-    {
-        mObjectEntity = iObjectEntity;
-        // Add all this code to the PostPopping callback of ObjectEntity
-        mObjectEntity.PostPoppingAction.Add(() => {
-            // Increase the entity counter with the type of this new ObjectEntity
-            AddType();
-
-            // Child post popping
-            PostPoppingEntity();
-
-            UpdateAvailableInteraction();
-        });
-        return this;
     }
 
     protected abstract void PostPoppingEntity();
@@ -244,13 +242,22 @@ public abstract class AInteraction : MonoBehaviour
             lAnimationParameters.HideUI();
     }
 
+    protected ItemInteraction GetItemInteraction(string iName)
+    {
+        foreach (ItemInteraction lInteraction in mItemInteractions) {
+            if (lInteraction.Name == iName)
+                return lInteraction;
+        }
+        return null;
+    }
+
     /// <summary>
     /// Return true if iInteractionName can interact with iType Entity.
     /// </summary>
     /// <returns><c>true</c>, if interact with was caned, <c>false</c> otherwise.</returns>
     /// <param name="iInteractionName">I interaction name.</param>
     /// <param name="iType">I type.</param>
-    protected bool CanInteractWith(string iInteractionName, EntityParameters.EntityType iType)
+    protected bool IsInteractionCanInteractType(string iInteractionName, EntityParameters.EntityType iType)
     {
         foreach (ItemInteraction lInteraction in mItemInteractions) {
 
@@ -296,7 +303,7 @@ public abstract class AInteraction : MonoBehaviour
                 if (lIntType < 0 || lIntType > sTypeSubscribers.Length) {
                     Debug.LogError("[INTERACTION] - Subscribers list out of range index access.");
                 } else {
-                    iInteraction.BindedObjectEntity = mObjectEntity;
+                    iInteraction.BindedObjectEntity = mEntity;
                     sTypeSubscribers[lIntType].Add(iInteraction);
                 }
             }

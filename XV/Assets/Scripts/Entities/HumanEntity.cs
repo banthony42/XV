@@ -38,11 +38,8 @@ public class HumanEntity : AEntity
 
 		set
 		{
-			if (!value) {
-				Utils.PrintStackTrace();
-				Debug.Log("ObjectEntity : " + mHDS.Name + "Has been unselected");
+			if (!value) 
 				UIBubbleInfo.Hide();
-			}
 			mSelected = value;
 		}
 	}
@@ -63,12 +60,9 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	private void Start()
+	protected override void Start()
 	{
-		// Adding this to all ObjectEntities
-		if (sAllEntites == null)
-			sAllEntites = new List<AEntity>();
-		sAllEntites.Add(this);
+        base.Start();
 
 		mMovableEntity = GetComponent<MovableEntity>();
 		mAnimator = GetComponent<Animator>();
@@ -92,30 +86,6 @@ public class HumanEntity : AEntity
 			ClickAction = (iObjectEntity) => {
 				Dispose();
 				RemoveEntity();
-			}
-		});
-
-		UIBubbleInfo.CreateButton(new UIBubbleInfoButton {
-			Text = "Interact with",
-			ClickAction = (iObjectEntity) => {
-
-
-				AEntity.ForEachEntities((AEntity obj) => obj.OutlineObject());
-
-				//List<GameObject> lGameObjects = new List<GameObject>();
-
-				//foreach (AEntity lEntity in AEntity.AllEntities) {
-				//	lGameObjects.Add(lEntity.gameObject);
-				//}
-
-				//new System.Threading.Thread(() => {
-
-				//	for (int i = 0; i < lGameObjects.Count; i++) {
-				//		AEntity.AllEntities[i].OutlineObject(lGameObjects[i]);
-				//	}
-
-				//}).Start();
-
 			}
 		});
 
@@ -189,7 +159,7 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	protected  override void OnDestroy()
+	protected override void OnDestroy()
 	{
         base.OnDestroy();
 	}

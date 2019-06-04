@@ -83,7 +83,7 @@ public sealed class ChariotPlateForme : AInteraction
                     }
 
                     // If Subscribers contain the clicked Entity type use it as target and add animation to timeline
-                    if (CanInteractWith(iInteractionName, lEntityParam.Type)) {
+                    if (IsInteractionCanInteractType(iInteractionName, lEntityParam.Type)) {
                         AnimationParameters lAnimationParameters = new AnimationParameters() {
                             TargetType = AnimationParameters.AnimationTargetType.ENTITY,
                             AnimationTarget = lEntityParam.gameObject,

@@ -236,12 +236,12 @@ public class GameManager : MonoBehaviour
 
 		Utils.SetLayerRecursively(lTopParent, LayerMask.NameToLayer("dropable"));
 
-        // Check if this item have Interaction, and init it's field.
-        AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
-        if (lInteraction != null) {
-            lInteraction.SetEntityParameters(lParameters)
-                        .SetObjectEntity(lObjectEntity);
-        }
+        //// Check if this item have Interaction, and init it's field.
+        //AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
+        //if (lInteraction != null) {
+        //    lInteraction.SetEntityParameters(lParameters)
+        //                .SetEntity(lObjectEntity);
+        //}
 
 		return oGameObject;
 	}

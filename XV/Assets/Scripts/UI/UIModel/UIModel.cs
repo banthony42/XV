@@ -155,7 +155,7 @@ public sealed class UIModel : MonoBehaviour,
 			// Update orientation
 
 			if (lParameters.ResetPositionOffset) {
-				Debug.Log("1");
+
 
 				//////////////// DEBUG PART clem
 				//GameObject lOffsetRotation = new GameObject();
