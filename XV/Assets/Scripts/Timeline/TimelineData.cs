@@ -10,7 +10,7 @@ using AnimAction = System.Predicate<AnimationInfo>;
 
 public sealed class TimelineData
 {
-	public enum TrackType { ANIMATION, TRANSLATION, ROTATION };
+	public enum EventType { ANIMATION, TRANSLATION, ROTATION, INTERACTION };
 	private TimelineAsset mTimeline;
 	private PlayableDirector mDirector;
 	private Dictionary<int, GroupTrack> mBindings;
@@ -22,13 +22,13 @@ public sealed class TimelineData
 		mBindings = new Dictionary<int, GroupTrack>();
 	}
 
-	public void CreateEventClip(int iTrackID, AnimAction iAction, TrackType iType, AnimationParameters iParams = null)
+	public void CreateEventClip(int iTrackID, AnimAction iAction, EventType iType, AnimationParameters iParams = null)
 	{
 		ActionTrack lTrack = (ActionTrack)GetTrack(iTrackID, iType);
 		TimelineClip lTimelineClip = lTrack.CreateClip<ActionAsset>();
 		ActionAsset lActionAsset = lTimelineClip.asset as ActionAsset;
-		lActionAsset.AttachedAction = iAction;
-		lActionAsset.AttachedParameters = iParams;
+		lActionAsset.Actions.Add(iAction);
+		lActionAsset.Parameters.Add(iParams);
 		lActionAsset.Track = lTrack;
 		lTimelineClip.duration = 0.1D;
 
@@ -38,18 +38,39 @@ public sealed class TimelineData
 		TimelineEvent.OnAddClip(lEventData);
 	}
 
+	public void CreateInteractionEventClip(int iTrackID, List<InteractionStep> iSteps)
+	{
+		ActionTrack lTrack = (ActionTrack)GetTrack(iTrackID, EventType.INTERACTION);
+
+		TimelineClip lTimelineClip = lTrack.CreateClip<ActionAsset>();
+		ActionAsset lActionAsset = lTimelineClip.asset as ActionAsset;
+		foreach (InteractionStep lStep in iSteps) {
+			lActionAsset.Actions.Add(lStep.action);
+			lActionAsset.Parameters.Add((AnimationParameters)lStep.tag);
+			lActionAsset.Track = lTrack;
+			lTimelineClip.duration = 0.1D;
+		}
+
+		TimelineEvent.Data lEventData = new TimelineEvent.Data(iTrackID);
+		lEventData.ClipStart = lTrack.GetClips().First().start;
+		lEventData.Type = EventType.INTERACTION;
+		TimelineEvent.OnAddClip(lEventData);
+	}
+
 	public GroupTrack CreateTrack(GameObject iObject)
 	{
 		int lID = iObject.GetInstanceID();
 		GroupTrack lGroup = (GroupTrack)mTimeline.CreateTrack(typeof(GroupTrack), null, iObject.name);
-		TrackAsset lAnim = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, TrackType.ANIMATION.ToString());
-		TrackAsset lTrans = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, TrackType.TRANSLATION.ToString());
-		TrackAsset lRot = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, TrackType.ROTATION.ToString());
+		TrackAsset lAnim = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, EventType.ANIMATION.ToString());
+		TrackAsset lTrans = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, EventType.TRANSLATION.ToString());
+		TrackAsset lRot = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, EventType.ROTATION.ToString());
+		TrackAsset lInter = mTimeline.CreateTrack(typeof(ActionTrack), lGroup, EventType.INTERACTION.ToString());
 		mBindings.Add(lID, lGroup);
 		mDirector.SetGenericBinding(lGroup, iObject);
 		mDirector.SetGenericBinding(lAnim, iObject);
 		mDirector.SetGenericBinding(lTrans, iObject);
 		mDirector.SetGenericBinding(lRot, iObject);
+		mDirector.SetGenericBinding(lInter, iObject);
 		TimelineEvent.OnAddTrack(new TimelineEvent.Data(lID));
 		return lGroup;
 	}
@@ -63,7 +84,7 @@ public sealed class TimelineData
 		TimelineEvent.OnDeleteTrack(lEventData);
 	}
 
-	public void RebuildTracksOfType(TrackType iType)
+	public void RebuildTracksOfType(EventType iType)
 	{
 		Dictionary<int, ActionTrack> lTracks = GetAllTracksOfType(iType);
 		foreach (KeyValuePair<int, ActionTrack> lTrack in lTracks) {
@@ -78,13 +99,13 @@ public sealed class TimelineData
 		}
 	}
 
-	public ActionTrack GetTrack(int iID, TrackType iType)
+	public ActionTrack GetTrack(int iID, EventType iType)
 	{
 		GroupTrack lGroup = GetGroupTrack(iID);
 		return GetTrackFromGroup(lGroup, iType);
 	}
 
-	public ActionTrack GetTrackFromGroup(GroupTrack iGroup, TrackType iType)
+	public ActionTrack GetTrackFromGroup(GroupTrack iGroup, EventType iType)
 	{
 		ActionTrack lTrack = null;
 		if (iGroup != null) {
@@ -101,7 +122,7 @@ public sealed class TimelineData
 		return lGroup;
 	}
 
-	public Dictionary<int, ActionTrack> GetAllTracksOfType(TrackType iType)
+	public Dictionary<int, ActionTrack> GetAllTracksOfType(EventType iType)
 	{
 		Dictionary<int, ActionTrack> lTracks = new Dictionary<int, ActionTrack>();
 		foreach (KeyValuePair<int, GroupTrack> iBinding in mBindings) {

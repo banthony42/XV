@@ -72,7 +72,18 @@ public sealed class TimelineManager : MonoBehaviour
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ANIMATION, iParams);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.ANIMATION, iParams);
+		}
+	}
+
+	public void AddInteraction(GameObject iObject, List<InteractionStep> iSteps)
+	{
+		if (iObject != null) {
+			int lID = iObject.GetInstanceID();
+			if (!mData.TrackExists(lID)) {
+				mData.CreateTrack(iObject);
+			}
+			mData.CreateInteractionEventClip(lID, iSteps);
 		}
 	}
 
@@ -83,7 +94,7 @@ public sealed class TimelineManager : MonoBehaviour
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.TRANSLATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.TRANSLATION);
 		}
 	}
 
@@ -94,7 +105,7 @@ public sealed class TimelineManager : MonoBehaviour
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ROTATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.ROTATION);
 		}
 	}
 
@@ -112,9 +123,10 @@ public sealed class TimelineManager : MonoBehaviour
 
 	public void Rebuild()
 	{
-		mData.RebuildTracksOfType(TimelineData.TrackType.ANIMATION);
-		mData.RebuildTracksOfType(TimelineData.TrackType.TRANSLATION);
-		mData.RebuildTracksOfType(TimelineData.TrackType.ROTATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.ANIMATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.TRANSLATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.ROTATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.INTERACTION);
 	}
 
 	public GameObject GetObjectFromID(int iID)

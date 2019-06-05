@@ -10,8 +10,8 @@ using AnimAction = System.Predicate<AnimationInfo>;
 [TrackBindingType(typeof(GameObject))]
 public class ActionTrack : TrackAsset
 {
-	private Queue<AnimAction> mActions;
-	private Queue<AnimationParameters> mParams;
+	private Queue<List<AnimAction>> mActionsSets;
+	private Queue<List<AnimationParameters>> mParamsSets;
 
 	private static float ACTIONS_LOOP_TIME = 0.2F;
 
@@ -31,23 +31,31 @@ public class ActionTrack : TrackAsset
 
 	private void Awake()
 	{
-		mActions = new Queue<AnimAction>();
-		mParams = new Queue<AnimationParameters>();
+		mActionsSets = new Queue<List<AnimAction>>();
+		mParamsSets = new Queue<List<AnimationParameters>>();
 		TimelineManager.Instance.StartCoroutine(ActionQueueCallAsync());
 	}
 
-	public void QueueAction(AnimAction iAction, AnimationParameters iParams = null)
+	public void QueueActions(List<AnimAction> iAction, List<AnimationParameters> iParams = null)
 	{
-		mActions.Enqueue(iAction);
-		mParams.Enqueue(iParams);
+		mActionsSets.Enqueue(iAction);
+		mParamsSets.Enqueue(iParams);
 	}
 
 	private IEnumerator ActionQueueCallAsync()
 	{
 		while (true) {
-			if (mActions.Count > 0) {
-				AnimAction lAction = mActions.Dequeue();
-				yield return new WaitUntil(() => lAction(GetInfo()));
+			if (mActionsSets.Count > 0) {
+				List<AnimAction> lActions = mActionsSets.Dequeue();
+				for (int lIndex = 0; lIndex < lActions.Count; lIndex++) {
+					AnimAction lAction = lActions[lIndex];
+					if (lAction != null) {
+						yield return new WaitUntil(() => lAction(GetInfo(lIndex)));
+					}
+					else {
+						Debug.LogError("An error occured while trying to execute a Timeline Action");
+					}
+				}
 			}
 			else {
 				yield return new WaitForSeconds(ACTIONS_LOOP_TIME);
@@ -55,11 +63,12 @@ public class ActionTrack : TrackAsset
 		}
 	}
 
-	private AnimationInfo GetInfo()
+	private AnimationInfo GetInfo(int iIndex)
 	{
 		AnimationInfo lInfo = new AnimationInfo();
-		if (mActions.Count > 0) {
-			lInfo.Parameters = mParams.Dequeue();
+		if (mParamsSets.Count > 0) {
+			List<AnimationParameters> lParams = mParamsSets.Dequeue();
+			lInfo.Parameters = lParams[iIndex];
 		}
 		return lInfo;
 	}

@@ -67,14 +67,17 @@ public class UITimeline : MonoBehaviour {
 		UITrack lTrack = mTracks.Find(iTrack => iTrack.ID == iData.TrackID);
 		if (lTrack != null) {
 			switch (iData.Type) {
-				case TimelineData.TrackType.ANIMATION:
+				case TimelineData.EventType.ANIMATION:
 					lTrack.AddAnimationClip(iData.ClipStart);
 					break;
-				case TimelineData.TrackType.TRANSLATION:
+				case TimelineData.EventType.TRANSLATION:
 					lTrack.AddTranslationClip(iData.ClipStart);
 					break;
-				case TimelineData.TrackType.ROTATION:
+				case TimelineData.EventType.ROTATION:
 					lTrack.AddRotationClip(iData.ClipStart);
+					break;
+				case TimelineData.EventType.INTERACTION:
+					lTrack.AddInteractionClip(iData.ClipStart);
 					break;
 			}
 		}

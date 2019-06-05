@@ -8,11 +8,13 @@ using UnityEngine.UI;
 public class UITrack : MonoBehaviour
 {
 	private List<UIClip> mAnimations;
+	private List<UIClip> mInteractions;
 	private List<UIClip> mTranslations;
 	private List<UIClip> mRotations;
 
 	private RectTransform mRectTransform;
 	private UIClip UIAnimationClipPrefab;
+	private UIClip UIInteractionClipPrefab;
 	private UIClip UITranslationClipPrefab;
 	private UIClip UIRotationClipPrefab;
 
@@ -48,9 +50,11 @@ public class UITrack : MonoBehaviour
 	{
 		mRectTransform = transform.Find("Track") as RectTransform;
 		mAnimations = new List<UIClip>();
+		mInteractions = new List<UIClip>();
 		mTranslations = new List<UIClip>();
 		mRotations = new List<UIClip>();
 		UIAnimationClipPrefab = Resources.Load<UIClip>(GameManager.UI_TEMPLATE_PATH + "Timeline/UIAnimationClip");
+		UIInteractionClipPrefab = Resources.Load<UIClip>(GameManager.UI_TEMPLATE_PATH + "Timeline/UIInteractionClip");
 		UITranslationClipPrefab = Resources.Load<UIClip>(GameManager.UI_TEMPLATE_PATH + "Timeline/UITranslationClip");
 		UIRotationClipPrefab = Resources.Load<UIClip>(GameManager.UI_TEMPLATE_PATH + "Timeline/UIRotationClip");
 	}
@@ -69,16 +73,23 @@ public class UITrack : MonoBehaviour
 	public void AddAnimationClip(double iStart)
 	{
 		UIClip lClip = Instantiate(UIAnimationClipPrefab, mRectTransform);
-		lClip.Type = TimelineData.TrackType.ANIMATION;
-		float lClipX = TimelineUtility.ClipStartToPosition(iStart, GetLimits()) + UIClip.sSizeMin / 2F;
+		lClip.Type = TimelineData.EventType.ANIMATION;
 		mAnimations.Add(lClip);
-		lClip.Build(lClip.Size, lClipX);
+		BuildClip(lClip, iStart);
+	}
+
+	public void AddInteractionClip(double iStart)
+	{
+		UIClip lClip = Instantiate(UIInteractionClipPrefab, mRectTransform);
+		lClip.Type = TimelineData.EventType.INTERACTION;
+		mInteractions.Add(lClip);
+		BuildClip(lClip, iStart);
 	}
 
 	public void AddTranslationClip(double iStart)
 	{
 		UIClip lClip = Instantiate(UITranslationClipPrefab, mRectTransform);
-		lClip.Type = TimelineData.TrackType.TRANSLATION;
+		lClip.Type = TimelineData.EventType.TRANSLATION;
 		mTranslations.Add(lClip);
 		BuildClip(lClip, iStart);
 	}
@@ -86,7 +97,7 @@ public class UITrack : MonoBehaviour
 	public void AddRotationClip(double iStart)
 	{
 		UIClip lClip = Instantiate(UIRotationClipPrefab, mRectTransform);
-		lClip.Type = TimelineData.TrackType.ROTATION;
+		lClip.Type = TimelineData.EventType.ROTATION;
 		mRotations.Add(lClip);
 		BuildClip(lClip, iStart);
 	}
@@ -119,7 +130,7 @@ public class UITrack : MonoBehaviour
 		return lClipX;
 	}
 
-	public int GetPreviousAtPosition(float iClipX, TimelineData.TrackType iType)
+	public int GetPreviousAtPosition(float iClipX, TimelineData.EventType iType)
 	{
 		List<UIClip> lClips = GetClipList(iType);
 		if (lClips.Count == 0) {
@@ -135,7 +146,7 @@ public class UITrack : MonoBehaviour
 		return i - 1;
 	}
 
-	public int GetNextAtPosition(float iClipX, TimelineData.TrackType iType)
+	public int GetNextAtPosition(float iClipX, TimelineData.EventType iType)
 	{
 		List<UIClip> lClips = GetClipList(iType);
 		if (lClips.Count == 0) {
@@ -151,7 +162,7 @@ public class UITrack : MonoBehaviour
 		return -1;
 	}
 
-	public UIClip GetClip(int iIndex, TimelineData.TrackType iType)
+	public UIClip GetClip(int iIndex, TimelineData.EventType iType)
 	{
 		List<UIClip> lClips = GetClipList(iType);
 		if (iIndex >= 0 && iIndex < lClips.Count) {
@@ -171,15 +182,17 @@ public class UITrack : MonoBehaviour
 		return new Vector2(-lHalfSize, lHalfSize);
 	}
 
-	private List<UIClip> GetClipList(TimelineData.TrackType iType)
+	private List<UIClip> GetClipList(TimelineData.EventType iType)
 	{
 		switch (iType) {
-			case TimelineData.TrackType.ANIMATION:
+			case TimelineData.EventType.ANIMATION:
 				return mAnimations;
-			case TimelineData.TrackType.TRANSLATION:
+			case TimelineData.EventType.TRANSLATION:
 				return mTranslations;
-			case TimelineData.TrackType.ROTATION:
+			case TimelineData.EventType.ROTATION:
 				return mRotations;
+			case TimelineData.EventType.INTERACTION:
+				return mInteractions;
 			default:
 				return null;
 		}

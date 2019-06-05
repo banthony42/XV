@@ -46,15 +46,17 @@ public class TimelineUtility : MonoBehaviour
 		return lSeconds + ":" + lRemain;
 	}
 
-	public static string FormatType(TimelineData.TrackType iType)
+	public static string FormatType(TimelineData.EventType iType)
 	{
 		switch (iType) {
-			case TimelineData.TrackType.ANIMATION:
+			case TimelineData.EventType.ANIMATION:
 				return "Animation";
-			case TimelineData.TrackType.TRANSLATION:
+			case TimelineData.EventType.TRANSLATION:
 				return "Movement";
-			case TimelineData.TrackType.ROTATION:
+			case TimelineData.EventType.ROTATION:
 				return "Rotation";
+			case TimelineData.EventType.INTERACTION:
+				return "Interaction";
 			default:
 				return "";
 		}
