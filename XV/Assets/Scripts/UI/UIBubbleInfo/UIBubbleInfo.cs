@@ -20,6 +20,9 @@ public class UIBubbleInfo : MonoBehaviour
 	private GameObject SampleButton;
 
 	[SerializeField]
+	private GameObject ColorSelector;
+
+	[SerializeField]
 	private InputField ModelName;
 
 	public AEntity Parent { get; set; }
@@ -62,6 +65,7 @@ public class UIBubbleInfo : MonoBehaviour
 			return null;
 
 		GameObject lNewButton = Instantiate(SampleButton, GridContainer.transform);
+		lNewButton.transform.SetSiblingIndex(0); // puts the buttons before the selectorColor line
 
 		Button lButtonComponant = lNewButton.GetComponent<Button>();
 		lButtonComponant.onClick.AddListener(() => {
@@ -69,45 +73,45 @@ public class UIBubbleInfo : MonoBehaviour
 				iInfoButton.ClickAction(Parent);
 		});
 
-        if (string.IsNullOrEmpty(iInfoButton.Tag))
-            mButtons.Add(new KeyValuePair<string, Button>("untagged", lButtonComponant));
-        else
-            mButtons.Add(new KeyValuePair<string, Button>(iInfoButton.Tag, lButtonComponant));
+		if (string.IsNullOrEmpty(iInfoButton.Tag))
+			mButtons.Add(new KeyValuePair<string, Button>("untagged", lButtonComponant));
+		else
+			mButtons.Add(new KeyValuePair<string, Button>(iInfoButton.Tag, lButtonComponant));
 
-        lNewButton.GetComponentInChildren<Text>().text = iInfoButton.Text;
+		lNewButton.GetComponentInChildren<Text>().text = iInfoButton.Text;
 		lNewButton.name = iInfoButton.Text;
 		lNewButton.SetActive(true);
 		Canvas.ForceUpdateCanvases();
 		return lButtonComponant;
 	}
 
-    public bool ContainsButton(string iTag)
-    {
-        if (string.IsNullOrEmpty(iTag))
-            return false;
-        foreach (KeyValuePair<string, Button> lButton in mButtons) {
-            if (lButton.Key == iTag) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public bool ContainsButton(string iTag)
+	{
+		if (string.IsNullOrEmpty(iTag))
+			return false;
+		foreach (KeyValuePair<string, Button> lButton in mButtons) {
+			if (lButton.Key == iTag) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    public void DestroyButton(string iTag)
-    {
-        if (string.IsNullOrEmpty(iTag))
-            return;
-        foreach (KeyValuePair<string, Button> lButton in mButtons) {
-            if (lButton.Key == iTag) {
-                mButtons.Remove(lButton);
-                Destroy(lButton.Value.gameObject);
-                Canvas.ForceUpdateCanvases();
-                return;
-            }
-        }
-    }
+	public void DestroyButton(string iTag)
+	{
+		if (string.IsNullOrEmpty(iTag))
+			return;
+		foreach (KeyValuePair<string, Button> lButton in mButtons) {
+			if (lButton.Key == iTag) {
+				mButtons.Remove(lButton);
+				Destroy(lButton.Value.gameObject);
+				Canvas.ForceUpdateCanvases();
+				return;
+			}
+		}
+	}
 
-    public void SetUIName(string iName)
+	public void SetUIName(string iName)
 	{
 		ModelName.text = iName;
 	}
@@ -150,13 +154,46 @@ public class UIBubbleInfo : MonoBehaviour
 			return;
 
 		StartCoroutine(Utils.WaitNextFrameAsync(() => {
-			
+
 			StartCoroutine(Utils.WaitNextFrameAsync(() => {
 				mContentSizeFitter.enabled = true;
 			}));
 
 			mContentSizeFitter.enabled = false;
 		}));
+	}
+
+	public void OnResetColorClick()
+	{
+		Parent.ResetColor();
+		Debug.Log("reset");
+	}
+
+	public void OnRedColorClick()
+	{
+		Color lColor;
+		ColorUtility.TryParseHtmlString("#E73F3FFF", out lColor);
+
+		Parent.SetColored(lColor);
+		Debug.Log("red");
+	}
+
+	public void OnGreenColorClick()
+	{
+		Color lColor;
+		ColorUtility.TryParseHtmlString("#13A945FF", out lColor);
+
+		Parent.SetColored(lColor);
+		Debug.Log("green");
+	}
+
+	public void OnBlueColorClick()
+	{
+		Color lColor;
+		ColorUtility.TryParseHtmlString("#347ADBFF", out lColor);
+
+		Parent.SetColored(lColor);
+		Debug.Log("blue");
 	}
 
 	IEnumerator FadeToAsync(float iValue, float iTime)

@@ -42,15 +42,27 @@ public abstract class AEntity : MonoBehaviour
 
 	private AObjectDataScene mODS;
 
+	private Queue<Color> mOriginalColorsMaterial;
+
 	public abstract void Dispose();
 
 	protected virtual void Awake()
 	{
 		PostPoppingAction = new List<Action>();
+		mOriginalColorsMaterial = new Queue<Color>();
 		mEntityParameters = GetComponent<EntityParameters>();
 
 		if (mEntityParameters != null && GetComponent<AInteraction>() == null)
 			gameObject.AddComponent<GenericInteraction>();
+
+		PostPoppingAction.Add(() => {
+			if (mODS.IsColored) {
+				mODS.IsColored = false; // This will be reset to true in the followed SetColored
+				// We set it to false because if IsColored is true, it will not save the default texture
+				SetColored(mODS.Color);
+
+			}
+		});
 	}
 
 	public AEntity InitDataScene(DataScene iDataScene)
@@ -144,6 +156,71 @@ public abstract class AEntity : MonoBehaviour
 		ForEachEntities((iEntity) => {
 			iEntity.gameObject.SetActive(true);
 		});
+	}
+
+	public void ResetColor()
+	{
+		if (!mODS.IsColored)
+			return;
+		
+		Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+				Material[] lMaterials = lR.materials;
+
+				if (mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+						lMaterial.color = mOriginalColorsMaterial.Dequeue();
+					}
+				}
+
+				lR.materials = lMaterials;
+			}
+		});
+
+		mODS.IsColored = false;
+		mODS.OriginalColorsMaterial = new List<Color>(mOriginalColorsMaterial);
+		mDataScene.Serialize();
+	}
+
+	public void SetColored(Color iColor)
+	{
+		if (!mODS.IsColored)
+			mOriginalColorsMaterial.Clear();
+		
+		mODS.Color = iColor;
+
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+				Material[] lMaterials = lR.materials;
+
+				if (mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+						lMaterial.color = iColor;
+					}
+				} else if (!mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+
+						mOriginalColorsMaterial.Enqueue(lMaterial.color);
+						lMaterial.color = iColor;
+					}
+
+				}
+
+				lR.materials = lMaterials;
+			}
+		});
+
+		mODS.IsColored = true;
+		mODS.OriginalColorsMaterial = new List<Color>(mOriginalColorsMaterial);
+		mDataScene.Serialize();
+		Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
 	}
 
 	// This function Instantiate associated Model & make it child of OffsetRotation

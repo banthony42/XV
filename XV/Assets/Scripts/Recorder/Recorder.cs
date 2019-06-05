@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.IO;
 using RockVR.Video;
+using RockVR.Common;
 
 #if UNITY_EDITOR_OSX
 using UnityEngine.Collections;
@@ -36,6 +37,11 @@ public class Recorder : MonoBehaviour
 
 	private void Start()
 	{
+		string a = "a+x " + PathConfig.injectorPath;
+		string b = "a+x " + PathConfig.ffmpegPath;
+		CmdProcess.Run("chmod", a);
+		CmdProcess.Run("chmod", b);
+
 		mVideoCapture = Camera.main.GetComponent<VideoCapture>();
 		if (mVideoCapture == null)
 			Debug.Log("[RECORDER] Main camera doesn't have VideoCapture component");

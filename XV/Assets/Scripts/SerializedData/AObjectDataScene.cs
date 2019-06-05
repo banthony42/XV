@@ -12,8 +12,8 @@ public enum ObjectDataSceneType
 }
 
 [Serializable]
-public class AObjectDataScene {
-
+public class AObjectDataScene
+{
 	public string Name { get; set; }
 
 	public ObjectDataSceneType Type { get; set; }
@@ -23,5 +23,15 @@ public class AObjectDataScene {
 	public Vector3 Position { get; set; }
 
 	public Vector3 Rotation { get; set; }
+
+	public bool IsColored { get; set; }
+
+	public List<Color> OriginalColorsMaterial { get; set; }
+
+	public Color Color { get; set; }
+
+	public AObjectDataScene() {
+		OriginalColorsMaterial = new List<Color>();
+	}
 
 }

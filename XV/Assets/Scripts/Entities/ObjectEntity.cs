@@ -211,7 +211,6 @@ public class ObjectEntity : AEntity
 		if (iAnimatedPopping && !mBusy) {
 
 			Transform[] lTransforms = gameObject.GetComponentsInChildren<Transform>();
-			Array.Reverse(lTransforms);
 
 			if (lTransforms.Length > 0) {
 
