@@ -199,7 +199,7 @@ public class GameManager : MonoBehaviour
 		//if (lParameters != null)
 		//	lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
 		//else
-			lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
+		lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
 		//////////////// DEBUG PART clem
 
 
@@ -236,12 +236,12 @@ public class GameManager : MonoBehaviour
 
 		Utils.SetLayerRecursively(lTopParent, LayerMask.NameToLayer("dropable"));
 
-        //// Check if this item have Interaction, and init it's field.
-        //AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
-        //if (lInteraction != null) {
-        //    lInteraction.SetEntityParameters(lParameters)
-        //                .SetEntity(lObjectEntity);
-        //}
+		//// Check if this item have Interaction, and init it's field.
+		//AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
+		//if (lInteraction != null) {
+		//    lInteraction.SetEntityParameters(lParameters)
+		//                .SetEntity(lObjectEntity);
+		//}
 
 		return oGameObject;
 	}
@@ -288,15 +288,15 @@ public class GameManager : MonoBehaviour
 
 		while (AEntity.AllEntities.Length != 0)
 			yield return null;
-		
+
 		mCurrentDataScene = null;
 		XV_UI.Instance.SceneNameText.text = "-";
 	}
 
-    public void UnloadScene()
-    {
+	public void UnloadScene()
+	{
 
-    }
+	}
 
 	public void LoadScene(DataScene iDataScene)
 	{

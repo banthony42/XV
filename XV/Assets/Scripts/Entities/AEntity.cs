@@ -7,144 +7,144 @@ using UnityEngine.UI;
 public abstract class AEntity : MonoBehaviour
 {
 
-    public abstract bool Selected { get; set; }
+	public abstract bool Selected { get; set; }
 
-    public abstract string Name { get; set; }
+	public abstract string Name { get; set; }
 
-    public List<Action> PostPoppingAction { get; private set; }
+	public List<Action> PostPoppingAction { get; private set; }
 
-    public virtual Vector3 Size { get { return mSize; } }
+	public virtual Vector3 Size { get { return mSize; } }
 
-    public static List<AEntity> sAllEntites;
+	public static List<AEntity> sAllEntites;
 
-    public static AEntity[] AllEntities
-    {
-        get
-        {
-            if (sAllEntites != null)
-                return sAllEntites.ToArray();
-            else
-                return new ObjectEntity[0];
-        }
-    }
+	public static AEntity[] AllEntities
+	{
+		get
+		{
+			if (sAllEntites != null)
+				return sAllEntites.ToArray();
+			else
+				return new ObjectEntity[0];
+		}
+	}
 
-    public static int InstantiatedEntity { get { return AllEntities.Length; } }
+	public static int InstantiatedEntity { get { return AllEntities.Length; } }
 
-    protected UIBubbleInfo mUIBubbleInfo;
+	protected UIBubbleInfo mUIBubbleInfo;
 
-    protected EntityParameters mEntityParameters;
+	protected EntityParameters mEntityParameters;
 
-    protected DataScene mDataScene;
+	protected DataScene mDataScene;
 
-    protected Vector3 mSize;
+	protected Vector3 mSize;
 
-    protected bool mBusy;
+	protected bool mBusy;
 
-    private AObjectDataScene mODS;
+	private AObjectDataScene mODS;
 
-    public abstract void Dispose();
+	public abstract void Dispose();
 
-    protected virtual void Awake()
-    {
-        PostPoppingAction = new List<Action>();
-        mEntityParameters = GetComponent<EntityParameters>();
+	protected virtual void Awake()
+	{
+		PostPoppingAction = new List<Action>();
+		mEntityParameters = GetComponent<EntityParameters>();
 
-        if (mEntityParameters != null && GetComponent<AInteraction>() == null)
-            gameObject.AddComponent<GenericInteraction>();
-    }
+		if (mEntityParameters != null && GetComponent<AInteraction>() == null)
+			gameObject.AddComponent<GenericInteraction>();
+	}
 
-    public AEntity InitDataScene(DataScene iDataScene)
-    {
-        mDataScene = iDataScene;
-        return this;
-    }
+	public AEntity InitDataScene(DataScene iDataScene)
+	{
+		mDataScene = iDataScene;
+		return this;
+	}
 
-    public virtual void SetObjectDataScene(AObjectDataScene iODS)
-    {
-        mODS = iODS;
-    }
+	public virtual void SetObjectDataScene(AObjectDataScene iODS)
+	{
+		mODS = iODS;
+	}
 
-    protected virtual void Start()
-    {
-        // Adding this to all ObjectEntities
-        if (sAllEntites == null)
-            sAllEntites = new List<AEntity>();
-        sAllEntites.Add(this);
-    }
+	protected virtual void Start()
+	{
+		// Adding this to all ObjectEntities
+		if (sAllEntites == null)
+			sAllEntites = new List<AEntity>();
+		sAllEntites.Add(this);
+	}
 
-    protected virtual void OnDestroy()
-    {
-        if (sAllEntites != null)
-            sAllEntites.Remove(this);
-    }
+	protected virtual void OnDestroy()
+	{
+		if (sAllEntites != null)
+			sAllEntites.Remove(this);
+	}
 
-    public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
-    {
-        mUIBubbleInfo = iBubbleInfo;
-        mUIBubbleInfo.Parent = this;
-        if (mODS != null)
-            mUIBubbleInfo.SetUIName(mODS.Name);
-        else
-            Debug.LogError("[AENTITY] mODS is null when setting UIBubbleInfo");
-        mUIBubbleInfo.RefreshCanvas();
-        return this;
-    }
+	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
+	{
+		mUIBubbleInfo = iBubbleInfo;
+		mUIBubbleInfo.Parent = this;
+		if (mODS != null)
+			mUIBubbleInfo.SetUIName(mODS.Name);
+		else
+			Debug.LogError("[AENTITY] mODS is null when setting UIBubbleInfo");
+		mUIBubbleInfo.RefreshCanvas();
+		return this;
+	}
 
-    public Button CreateBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
-    {
-        if (mUIBubbleInfo == null) {
-            Debug.LogError("[AENTITY] mUIBubbleInfo is null when create button");
-            return null;
-        }
-        return mUIBubbleInfo.CreateButton(iButtonInfo);
-    }
+	public Button CreateBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
+	{
+		if (mUIBubbleInfo == null) {
+			Debug.LogError("[AENTITY] mUIBubbleInfo is null when create button");
+			return null;
+		}
+		return mUIBubbleInfo.CreateButton(iButtonInfo);
+	}
 
-    public void DestroyBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
-    }
+	public void DestroyBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
+	}
 
-    public void DestroyBubbleInfoButton(string iTag)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iTag);
-    }
+	public void DestroyBubbleInfoButton(string iTag)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iTag);
+	}
 
-    public static void ForEachEntities(Action<AEntity> iAction)
-    {
-        if (iAction == null)
-            return;
+	public static void ForEachEntities(Action<AEntity> iAction)
+	{
+		if (iAction == null)
+			return;
 
-        AEntity[] lEntities = AllEntities;
-        foreach (AEntity lEntity in lEntities)
-            iAction(lEntity);
-    }
+		AEntity[] lEntities = AllEntities;
+		foreach (AEntity lEntity in lEntities)
+			iAction(lEntity);
+	}
 
-    public static void HideNoInteractable(EntityParameters.EntityType[] iTypes,
-        AEntity iIgnored = null)
-    {
-        ForEachEntities((iEntity) => {
-            if (iEntity == iIgnored)
-                return;
-            if (iEntity.mEntityParameters != null) {
-                foreach (EntityParameters.EntityType lType in iTypes) {
-                    if (iEntity.mEntityParameters.Type == lType) {
-                        iEntity.gameObject.SetActive(true);
-                        return;
-                    }
-                }
-            }
-            iEntity.gameObject.SetActive(false);
-        });
-    }
+	public static void HideNoInteractable(EntityParameters.EntityType[] iTypes,
+		AEntity iIgnored = null)
+	{
+		ForEachEntities((iEntity) => {
+			if (iEntity == iIgnored)
+				return;
+			if (iEntity.mEntityParameters != null) {
+				foreach (EntityParameters.EntityType lType in iTypes) {
+					if (iEntity.mEntityParameters.Type == lType) {
+						iEntity.gameObject.SetActive(true);
+						return;
+					}
+				}
+			}
+			iEntity.gameObject.SetActive(false);
+		});
+	}
 
-    public static void DisableHideNoInteractable()
-    {
-        ForEachEntities((iEntity) => {
-            iEntity.gameObject.SetActive(true);
-        });
-    }
+	public static void DisableHideNoInteractable()
+	{
+		ForEachEntities((iEntity) => {
+			iEntity.gameObject.SetActive(true);
+		});
+	}
 
 	// This function Instantiate associated Model & make it child of OffsetRotation
 	// Then all material are replace by GhostMaterial

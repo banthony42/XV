@@ -38,7 +38,7 @@ public class HumanEntity : AEntity
 
 		set
 		{
-			if (!value) 
+			if (!value)
 				UIBubbleInfo.Hide();
 			mSelected = value;
 		}
@@ -62,7 +62,7 @@ public class HumanEntity : AEntity
 
 	protected override void Start()
 	{
-        base.Start();
+		base.Start();
 
 		mMovableEntity = GetComponent<MovableEntity>();
 		mAnimator = GetComponent<Animator>();
@@ -161,7 +161,7 @@ public class HumanEntity : AEntity
 
 	protected override void OnDestroy()
 	{
-        base.OnDestroy();
+		base.OnDestroy();
 	}
 
 	public override void Dispose()

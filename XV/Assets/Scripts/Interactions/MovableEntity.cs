@@ -23,14 +23,14 @@ public sealed class MovableEntity : MonoBehaviour
 		ROTATE,
 	}
 
-    public enum MoveStatus
-    {
-        FALSE,
+	public enum MoveStatus
+	{
+		FALSE,
 
-        TRUE,
+		TRUE,
 
-        END
-    }
+		END
+	}
 
 	private const float LIMIT = 0.5F;
 
@@ -209,7 +209,7 @@ public sealed class MovableEntity : MonoBehaviour
 					mUITargetRenderer.material.color = Color.green;
 				else if (mUITargetRenderer != null)
 					mUITargetRenderer.material.color = Color.red;
-			} else if (mUITargetRenderer != null) 
+			} else if (mUITargetRenderer != null)
 				mUITargetRenderer.material.color = Color.red;
 
 			// On click leave this mode and continue animation movement adding process
@@ -271,7 +271,7 @@ public sealed class MovableEntity : MonoBehaviour
 
 			// Add the code that do the animation in the Action timeline
 			TimelineManager.Instance.AddTranslation(gameObject, iInfo => {
-                return Move(lHitPoint, iInfo);
+				return Move(lHitPoint, iInfo);
 			});
 
 			//OnStartMove();
@@ -279,141 +279,132 @@ public sealed class MovableEntity : MonoBehaviour
 		}
 	}
 
-    public bool Move(Vector3 iDestination, AnimationInfo iInfo, Action iOnEndMovement = null)
-    {
-        if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP)
-        {
-            mAgent.enabled = false;
-            return true;
-        }
+	public bool Move(Vector3 iDestination, AnimationInfo iInfo, Action iOnEndMovement = null)
+	{
+		if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP) {
+			mAgent.enabled = false;
+			return true;
+		}
 
-        if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE)
-        {
-            mAgent.enabled = false;
-            return false;
-        }
+		if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE) {
+			mAgent.enabled = false;
+			return false;
+		}
 
-        // Check NavMesh component are present
-        if (mEntityObstacle == null || mAgent == null)
-        {
-            Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
-            return true;
-        }
+		// Check NavMesh component are present
+		if (mEntityObstacle == null || mAgent == null) {
+			Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
+			return true;
+		}
 
-        // Disable Obstacle
-        if (mEntityObstacle.enabled)
-        {
-            mEntityObstacle.enabled = false;
-            return false;
-        }
+		// Disable Obstacle
+		if (mEntityObstacle.enabled) {
+			mEntityObstacle.enabled = false;
+			return false;
+		}
 
-        // Active Agent
-        mAgent.enabled = true;
-        // Update speed
-        mAgent.ResetPath();
-        mAgent.speed *= iInfo.Speed;
-        mAgent.acceleration *= iInfo.Speed;
-        mAgent.SetDestination(iDestination);
+		// Active Agent
+		mAgent.enabled = true;
+		// Update speed
+		mAgent.ResetPath();
+		mAgent.speed *= iInfo.Speed;
+		mAgent.acceleration *= iInfo.Speed;
+		mAgent.SetDestination(iDestination);
 
-        // Check if we have reached the destination
-        if (!mAgent.pathPending)
-        {
-            if (mAgent.remainingDistance <= mAgent.stoppingDistance)
-            {
-                if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon)
-                {
-                    // Switch into obstacle mode
-                    mAgent.enabled = false;
-                    mEntityObstacle.enabled = true;
-                    // End of this Action
+		// Check if we have reached the destination
+		if (!mAgent.pathPending) {
+			if (mAgent.remainingDistance <= mAgent.stoppingDistance) {
+				if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon) {
+					// Switch into obstacle mode
+					mAgent.enabled = false;
+					mEntityObstacle.enabled = true;
+					// End of this Action
 
-                    foreach (Action lAction in OnEndMovement)
-                    {
-                        if (lAction != null)
-                            lAction();
-                    }
-                    Debug.Log("end");
+					foreach (Action lAction in OnEndMovement) {
+						if (lAction != null)
+							lAction();
+					}
+					Debug.Log("end");
 
-                    return true;
-                }
-            }
-        }
-        foreach (Action lAction in OnStartMovement)
-        {
-            if (lAction != null)
-                lAction();
-        }
-        Debug.Log("beginner");
-        return false;
-    }
+					return true;
+				}
+			}
+		}
+		foreach (Action lAction in OnStartMovement) {
+			if (lAction != null)
+				lAction();
+		}
+		Debug.Log("beginner");
+		return false;
+	}
 
-    //public MoveStatus Move(Vector3 iDestination, AnimationInfo iInfo)
-    //{
-    //    if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP)
-    //    {
-    //        mAgent.enabled = false;
-    //        return MoveStatus.TRUE;
-    //    }
+	//public MoveStatus Move(Vector3 iDestination, AnimationInfo iInfo)
+	//{
+	//    if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP)
+	//    {
+	//        mAgent.enabled = false;
+	//        return MoveStatus.TRUE;
+	//    }
 
-    //    if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE)
-    //    {
-    //        mAgent.enabled = false;
-    //        return MoveStatus.FALSE;
-    //    }
+	//    if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE)
+	//    {
+	//        mAgent.enabled = false;
+	//        return MoveStatus.FALSE;
+	//    }
 
-    //    // Check NavMesh component are present
-    //    if (mEntityObstacle == null || mAgent == null)
-    //    {
-    //        Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
-    //        return MoveStatus.TRUE;
-    //    }
+	//    // Check NavMesh component are present
+	//    if (mEntityObstacle == null || mAgent == null)
+	//    {
+	//        Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
+	//        return MoveStatus.TRUE;
+	//    }
 
-    //    // Disable Obstacle
-    //    if (mEntityObstacle.enabled)
-    //    {
-    //        mEntityObstacle.enabled = false;
-    //        return MoveStatus.FALSE;
-    //    }
+	//    // Disable Obstacle
+	//    if (mEntityObstacle.enabled)
+	//    {
+	//        mEntityObstacle.enabled = false;
+	//        return MoveStatus.FALSE;
+	//    }
 
-    //    // Active Agent
-    //    mAgent.enabled = true;
-    //    // Update speed
-    //    mAgent.ResetPath();
-    //    mAgent.speed *= iInfo.Speed;
-    //    mAgent.acceleration *= iInfo.Speed;
-    //    mAgent.SetDestination(iDestination);
+	//    // Active Agent
+	//    mAgent.enabled = true;
+	//    // Update speed
+	//    mAgent.ResetPath();
+	//    mAgent.speed *= iInfo.Speed;
+	//    mAgent.acceleration *= iInfo.Speed;
+	//    mAgent.SetDestination(iDestination);
 
-    //    // Check if we have reached the destination
-    //    if (!mAgent.pathPending)
-    //    {
-    //        if (mAgent.remainingDistance <= mAgent.stoppingDistance)
-    //        {
-    //            if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon)
-    //            {
-    //                // Switch into obstacle mode
-    //                mAgent.enabled = false;
-    //                mEntityObstacle.enabled = true;
-    //                // End of this Action
+	//    // Check if we have reached the destination
+	//    if (!mAgent.pathPending)
+	//    {
+	//        if (mAgent.remainingDistance <= mAgent.stoppingDistance)
+	//        {
+	//            if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon)
+	//            {
+	//                // Switch into obstacle mode
+	//                mAgent.enabled = false;
+	//                mEntityObstacle.enabled = true;
+	//                // End of this Action
 
-    //                foreach (Action lAction in OnEndMovement)
-    //                {
-    //                    if (lAction != null)
-    //                        lAction();
-    //                }
+	//                foreach (Action lAction in OnEndMovement)
+	//                {
+	//                    if (lAction != null)
+	//                        lAction();
+	//                }
 
-    //                return MoveStatus.TRUE;
-    //            }
-    //        }
-    //    }
-    //    foreach (Action lAction in OnStartMovement)
-    //    {
-    //        if (lAction != null)
-    //            lAction();
-    //    }
-    //    return MoveStatus.END;
-    //}
+	//                return MoveStatus.TRUE;
+	//            }
+	//        }
+	//    }
+	//    foreach (Action lAction in OnStartMovement)
+	//    {
+	//        if (lAction != null)
+	//            lAction();
+	//    }
+	//    return MoveStatus.END;
+	//}
 
-    private void Rotate(Quaternion iTarget)
+	private void Rotate(Quaternion iTarget)
 	{
 		// Reset Button & Mode
 		ResetMode();
