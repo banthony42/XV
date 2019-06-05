@@ -19,8 +19,6 @@ public sealed class UIModel : MonoBehaviour,
 
 	private GameObject mSelectedElement;
 
-	private Vector3 mCentroid;
-
 	private bool mMouseOver;
 
 	private bool mLockSelection;
@@ -89,12 +87,6 @@ public sealed class UIModel : MonoBehaviour,
 				Debug.DrawRay(lRay.origin, lRay.direction * lHit.distance, Color.red, 1);
 
 				mSelectedElement.transform.position = lHit.point;
-				mSelectedElement.transform.position +=
-					(mSelectedElement.transform.position - mSelectedElement.transform.TransformPoint(mCentroid));
-				// new at each drag ... find a way to update position.y without new
-
-				mSelectedElement.transform.position = new Vector3(
-					mSelectedElement.transform.position.x, lHit.point.y, mSelectedElement.transform.position.z);
 			}
 		}
 	}
@@ -144,19 +136,7 @@ public sealed class UIModel : MonoBehaviour,
 		if ((mSelectedElement = Instantiate(Model.GameObject)) == null)
 			return;
 
-		// Retrieve parameters for this item
-
-		// Cause a offset bug take care to test all the objects if you want uncomment 
-		//EntityParameters lParameters;
-
-		mCentroid = Utils.ComputeBoundingBox(mSelectedElement).center;
-
-		//if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
-		//	// Update orientation
-
-
-		//} else
-			mSelectedElement.transform.eulerAngles = Vector3.zero;
+		mSelectedElement.transform.eulerAngles = Vector3.zero;
 
 		mSelectedElement.SetActive(false);
 		Utils.SetLayerRecursively(mSelectedElement, LayerMask.NameToLayer("Ignore Raycast"));
@@ -166,6 +146,5 @@ public sealed class UIModel : MonoBehaviour,
 			Debug.LogError("[UI_MODEL] Allocation Error.");
 			return;
 		}
-		//Debug.Break();
 	}
 }

@@ -164,65 +164,27 @@ public class GameManager : MonoBehaviour
 
 		// Add UI Bubble 
 		GameObject lUIBubbleInfo;
-		if ((lUIBubbleInfo = Resources.Load<GameObject>("Prefabs/UI/UIBubbleInfo")) != null) {
+		if ((lUIBubbleInfo = Resources.Load<GameObject>("Prefabs/UI/UIBubbleInfo")) != null)
 			lUIBubbleInfo = Instantiate(lUIBubbleInfo, oGameObject.transform);
-			// The set position is make in ObjectEntity after the hierachy rework Start();
-		}
 
 		// Retrieve parameters for this item
 		EntityParameters lParameters;
 		lParameters = oGameObject.GetComponent<EntityParameters>();
 
-		// ---- Parent Creation ----
-
-		// Creating a new empty GameObject  - OffsetRotation Parent
-		GameObject lOffsetRotation = new GameObject();
-		lOffsetRotation.name = "ItemOffsetRotation";
-		lOffsetRotation.layer = oGameObject.layer;
-
-		// Creating a new empty GameObject - Highest Parent
-		GameObject lTopParent = new GameObject();
-		lTopParent.name = iODS.Name;
-		lTopParent.layer = oGameObject.layer;
-
 		// Setting positions
-		lTopParent.transform.position = iODS.Position + lBounds.center;
-
-		// Put the OffsetRotation as a child of the TopParent GameObject
-		lOffsetRotation.transform.parent = lTopParent.transform;
-
-		// Setting positions
-		lOffsetRotation.transform.position = Vector3.zero;
-		lOffsetRotation.transform.localPosition = Vector3.zero;
-
-
-		////////////////// DEBUG PART clem
-		//if (lParameters != null)
-		//	lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
-		//else
-		lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
-		//////////////// DEBUG PART clem
-
-
-		// Put the ObjectEntity as a child of the OffsetRotation GameObject
-		oGameObject.transform.parent = lOffsetRotation.transform;
+		oGameObject.transform.position = Vector3.zero;
 
 		oGameObject.transform.position = iODS.Position;
 		oGameObject.transform.localEulerAngles = Vector3.zero;
 
-		oGameObject.transform.localPosition = -lBounds.center;
-
 		oGameObject.name = iODS.PrefabName + "_mesh";
 		oGameObject.transform.localScale = iODS.Scale;
-		lTopParent.transform.eulerAngles = iODS.Rotation;
 
 		// Setting GameEntity
 		ObjectEntity lObjectEntity = oGameObject.AddComponent<ObjectEntity>()
 				   .StartAnimation(iAnimatedPopping)
 				   .SaveEntity()
-				   .SetSize(lBounds.size)
-				   .SetCenter(lBounds.center)
-				   .SetParent(lTopParent, lOffsetRotation);
+				   .SetSize(lBounds.size);
 
 		lObjectEntity.InitDataScene(mCurrentDataScene);
 		lObjectEntity.SetObjectDataScene(iODS);
@@ -231,18 +193,10 @@ public class GameManager : MonoBehaviour
 		// If this item can move - Add MovableEntity script
 		if (lParameters != null && lParameters.Movable) {
 			oGameObject.AddComponent<MovableEntity>()
-					   .SetParent(lTopParent, lOffsetRotation)
 					   .SetEntity(lObjectEntity);
 		}
 
-		Utils.SetLayerRecursively(lTopParent, LayerMask.NameToLayer("dropable"));
-
-		//// Check if this item have Interaction, and init it's field.
-		//AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
-		//if (lInteraction != null) {
-		//    lInteraction.SetEntityParameters(lParameters)
-		//                .SetEntity(lObjectEntity);
-		//}
+		Utils.SetLayerRecursively(oGameObject, LayerMask.NameToLayer("dropable"));
 
 		return oGameObject;
 	}

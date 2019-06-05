@@ -89,7 +89,6 @@ public class HumanEntity : AEntity
 			}
 		});
 
-		mMovableEntity.SetParent(this.gameObject, this.gameObject);
 		mMovableEntity.SetEntity(this);
 		mMovableEntity.OnStartMovement.Add(OnStartMovement);
 		mMovableEntity.OnEndMovement.Add(OnEndMovement);

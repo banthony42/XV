@@ -54,10 +54,6 @@ public sealed class MovableEntity : MonoBehaviour
 
 	private GameObject mUITargetTemplate;
 
-	private GameObject mCenteredParent;
-
-	private GameObject mOffsetRotationParent;
-
 	private GameObject mGhostEntity;
 
 	private float mAngle;
@@ -110,13 +106,6 @@ public sealed class MovableEntity : MonoBehaviour
 
 	public List<Action> OnEndMovement { get; private set; }
 
-	public MovableEntity SetParent(GameObject iTopParent, GameObject iOffsetRotationParent)
-	{
-		mCenteredParent = iTopParent;
-		mOffsetRotationParent = iOffsetRotationParent;
-		return this;
-	}
-
 	public MovableEntity SetEntity(AEntity iObjectEntity)
 	{
 		mObjectEntity = iObjectEntity;
@@ -149,7 +138,7 @@ public sealed class MovableEntity : MonoBehaviour
 				mRotateButtonColor = lButton.GetComponent<Image>();
 
 				// Add NavMeshAgent to move the object
-				if ((mAgent = mCenteredParent.AddComponent<NavMeshAgent>()) != null) {
+				if ((mAgent = gameObject.AddComponent<NavMeshAgent>()) != null) {
 					// Agent radius is the biggest size of the bounding box
 					mAgent.radius = (iObj.Size.x > iObj.Size.z) ? (iObj.Size.x / 2) : (iObj.Size.z / 2);
 					// Increase a little the radius to avoid limit of a mesh
@@ -160,7 +149,7 @@ public sealed class MovableEntity : MonoBehaviour
 					mAgent.stoppingDistance = LIMIT;
 					// Disable it until is not use
 					mAgent.enabled = false;
-				}
+ 				}
 
 				// Get the NavMeshObstacle to perform mutual exclusion with NavMeshAgent
 				mEntityObstacle = GetComponent<NavMeshObstacle>();
@@ -241,14 +230,14 @@ public sealed class MovableEntity : MonoBehaviour
 				if (mAngle > 360F)
 					mAngle = mAngle % 360F;
 				// Rotate the ghost around the center of the object, which is the offset rotation parent
-				mGhostEntity.transform.RotateAround(mOffsetRotationParent.transform.position, Vector3.up, lAngle);
+				mGhostEntity.transform.RotateAround(gameObject.transform.position, Vector3.up, lAngle);
 			}
 
 			// When 'r' is pressed leave this mode and continue animation orientation adding process
 			if (Input.GetKeyDown(KeyCode.R)) {
-				Quaternion lStart = mCenteredParent.transform.rotation;
+				Quaternion lStart = gameObject.transform.rotation;
 				// Send rotation destination to the function
-				Rotate(mCenteredParent.transform.rotation * Quaternion.Euler(lStart.x, lStart.y + mAngle, lStart.z));
+				Rotate(gameObject.transform.rotation * Quaternion.Euler(lStart.x, lStart.y + mAngle, lStart.z));
 			}
 
 			if (Input.GetMouseButtonDown(0))
@@ -429,7 +418,7 @@ public sealed class MovableEntity : MonoBehaviour
 			mRotationPerformed += Time.deltaTime * iInfo.Speed;
 
 			// Rotate to the correct amount
-			mCenteredParent.transform.rotation = Quaternion.Slerp(mCenteredParent.transform.rotation, iTarget, mRotationPerformed / lActionDuration);
+			gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, iTarget, mRotationPerformed / lActionDuration);
 
 			// When the counter reach the duration, the rotation is finished
 			if (mRotationPerformed > lActionDuration) {
