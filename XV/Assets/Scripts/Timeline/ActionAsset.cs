@@ -9,6 +9,7 @@ using AnimAction = System.Predicate<AnimationInfo>;
 public class ActionAsset : PlayableAsset
 {
 	public AnimAction AttachedAction { get; set; }
+	public AnimationParameters AttachedParameters { get; set; }
 	public ActionTrack Track { get; set; }
 
 	public override Playable CreatePlayable(PlayableGraph iGraph, GameObject iOwner)
@@ -16,6 +17,7 @@ public class ActionAsset : PlayableAsset
 		ScriptPlayable<ActionBehaviour> lPlayable = ScriptPlayable<ActionBehaviour>.Create(iGraph);
 		ActionBehaviour lBehaviour = lPlayable.GetBehaviour();
 		lBehaviour.AttachedAction = AttachedAction;
+		lBehaviour.AttachedParameters = AttachedParameters;
 		lBehaviour.Track = Track;
 		return lPlayable;
 	}

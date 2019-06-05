@@ -7,14 +7,14 @@ public class AnimationInfo
     public enum State { PLAY, PAUSE, STOP };
 
     /// <summary>
-    /// Global state of the all animations.
+    /// Global state of all animations.
     /// </summary>
     public static State sGlobalState;
 
-    /// <summary>
-    /// Speed coefficient of the animation.
+	/// <summary>
+    /// Global speed of all animations.
     /// </summary>
-    public float Speed;
+    public static float sGlobalSpeed;
 
     /// <summary>
     /// The parameters use by the Implementation of the Animation.

@@ -65,14 +65,14 @@ public sealed class TimelineManager : MonoBehaviour
 		SetGlobalSpeed(1F);
 	}
 
-	public void AddAnimation(GameObject iObject, AnimAction iAction)
+	public void AddAnimation(GameObject iObject, AnimAction iAction, AnimationParameters iParams)
 	{
 		if (iObject != null) {
 			int lID = iObject.GetInstanceID();
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ANIMATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ANIMATION, iParams);
 		}
 	}
 

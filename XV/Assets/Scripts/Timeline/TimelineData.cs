@@ -22,12 +22,13 @@ public sealed class TimelineData
 		mBindings = new Dictionary<int, GroupTrack>();
 	}
 
-	public void CreateEventClip(int iTrackID, AnimAction iAction, TrackType iType)
+	public void CreateEventClip(int iTrackID, AnimAction iAction, TrackType iType, AnimationParameters iParams = null)
 	{
 		ActionTrack lTrack = (ActionTrack)GetTrack(iTrackID, iType);
 		TimelineClip lTimelineClip = lTrack.CreateClip<ActionAsset>();
 		ActionAsset lActionAsset = lTimelineClip.asset as ActionAsset;
 		lActionAsset.AttachedAction = iAction;
+		lActionAsset.AttachedParameters = iParams;
 		lActionAsset.Track = lTrack;
 		lTimelineClip.duration = 0.1D;
 

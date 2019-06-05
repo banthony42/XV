@@ -11,6 +11,7 @@ using AnimAction = System.Predicate<AnimationInfo>;
 public class ActionTrack : TrackAsset
 {
 	private Queue<AnimAction> mActions;
+	private Queue<AnimationParameters> mParams;
 
 	private static float ACTIONS_LOOP_TIME = 0.2F;
 
@@ -31,12 +32,14 @@ public class ActionTrack : TrackAsset
 	private void Awake()
 	{
 		mActions = new Queue<AnimAction>();
+		mParams = new Queue<AnimationParameters>();
 		TimelineManager.Instance.StartCoroutine(ActionQueueCallAsync());
 	}
 
-	public void QueueAction(AnimAction iAction)
+	public void QueueAction(AnimAction iAction, AnimationParameters iParams = null)
 	{
 		mActions.Enqueue(iAction);
+		mParams.Enqueue(iParams);
 	}
 
 	private IEnumerator ActionQueueCallAsync()
@@ -54,9 +57,10 @@ public class ActionTrack : TrackAsset
 
 	private AnimationInfo GetInfo()
 	{
-		// Temporary
 		AnimationInfo lInfo = new AnimationInfo();
-		lInfo.Speed = 1F;
+		if (mActions.Count > 0) {
+			lInfo.Parameters = mParams.Dequeue();
+		}
 		return lInfo;
 	}
 	
