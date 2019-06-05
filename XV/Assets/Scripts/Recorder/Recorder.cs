@@ -70,6 +70,8 @@ public class Recorder : MonoBehaviour
 
 	private void Update()
 	{
+//		if (RecorderStatus != RecorderStatus.AVAILABLE)
+//			Debug.Log(VideoCaptureCtrl.instance.status);
 		if (RecorderStatus == RecorderStatus.COMPUTING) {
 			if (VideoCaptureCtrl.instance.status == VideoCaptureCtrl.StatusType.FINISH) {
 				RecorderStatus = RecorderStatus.AVAILABLE;
