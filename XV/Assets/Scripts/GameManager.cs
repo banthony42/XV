@@ -195,10 +195,10 @@ public class GameManager : MonoBehaviour
 		lOffsetRotation.transform.localPosition = Vector3.zero;
 
 
-		//////////////// DEBUG PART clem
-		if (lParameters != null)
-			lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
-		else
+		////////////////// DEBUG PART clem
+		//if (lParameters != null)
+		//	lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
+		//else
 			lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
 		//////////////// DEBUG PART clem
 

@@ -154,23 +154,6 @@ public sealed class UIModel : MonoBehaviour,
 		if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
 			// Update orientation
 
-			if (lParameters.ResetPositionOffset) {
-
-
-				//////////////// DEBUG PART clem
-				//GameObject lOffsetRotation = new GameObject();
-				//lOffsetRotation.name = mSelectedElement.name;
-				//lOffsetRotation.layer = mSelectedElement.layer;
-				//lOffsetRotation.transform.position = mSelectedElement.transform.position - new Vector3(mCentroid.x, 0, mCentroid.z);
-				//lOffsetRotation.transform.localPosition = new Vector3(-mCentroid.x, 0, -mCentroid.z) * 2;
-
-				//mSelectedElement.transform.parent = lOffsetRotation.transform;
-				//mSelectedElement.transform.eulerAngles = lParameters.Orientation;
-
-				//mSelectedElement = lOffsetRotation;
-				//////////////// DEBUG PART clem
-
-			}
 
 		} else
 			mSelectedElement.transform.eulerAngles = Vector3.zero;

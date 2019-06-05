@@ -34,19 +34,4 @@ public class EntityParameters : MonoBehaviour
 	{
 		get { return CanMove; }
 	}
-
-
-	[Header("Setting up the orientation of this model")]
-	[SerializeField]
-	private bool BadPositionOffset;
-
-	public bool ResetPositionOffset { get { return BadPositionOffset; } }
-
-	[SerializeField]
-	private Vector3 RotationOffset;
-
-	public Vector3 Orientation
-	{
-		get { return RotationOffset; }
-	}
 }
