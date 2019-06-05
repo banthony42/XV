@@ -26,8 +26,6 @@ public class ObjectEntity : AEntity
 	private GameObject mCenteredParent;
 	private GameObject mOffsetRotationParent;
 
-	private GameObject mOutlinedObject;
-
 	public bool IsBusy { get { return mBusy; } }
 
 	public Vector3 Center
@@ -205,12 +203,6 @@ public class ObjectEntity : AEntity
 	{
 		if (!mBusy)
 			StartCoroutine(DestroyObjectsTimedAsync());
-	}
-
-	public void EnableOutlineMode()
-	{
-		mOutlinedObject.transform.position = transform.position;
-		mOutlinedObject.transform.rotation = transform.rotation;
 	}
 
 	private IEnumerator DestroyObjectsTimedAsync()

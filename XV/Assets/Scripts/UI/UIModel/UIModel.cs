@@ -147,15 +147,15 @@ public sealed class UIModel : MonoBehaviour,
 		// Retrieve parameters for this item
 
 		// Cause a offset bug take care to test all the objects if you want uncomment 
-		EntityParameters lParameters;
+		//EntityParameters lParameters;
 
 		mCentroid = Utils.ComputeBoundingBox(mSelectedElement).center;
 
-		if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
-			// Update orientation
+		//if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
+		//	// Update orientation
 
 
-		} else
+		//} else
 			mSelectedElement.transform.eulerAngles = Vector3.zero;
 
 		mSelectedElement.SetActive(false);
