@@ -69,7 +69,8 @@ public class ActionTrack : TrackAsset
 		if (mParamsSets.Count > 0) {
 			List<AnimationParameters> lParams = mParamsSets.Dequeue();
 			lInfo.Parameters = lParams[iIndex];
-		}
+		} else
+			lInfo.Parameters = new AnimationParameters();
 		return lInfo;
 	}
 	

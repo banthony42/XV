@@ -153,15 +153,16 @@ public class ObjectEntity : AEntity
 
 		// Add a Nav Mesh obstacle on each object
 		NavMeshObstacle lObstacle;
-		if ((lObstacle = transform.gameObject.AddComponent<NavMeshObstacle>()) != null) {
+		GameObject lChildMesh = null;
+		if (gameObject.transform.GetChild(0) != null) {
+			lChildMesh = gameObject.transform.GetChild(0).gameObject;
+		}
+
+
+		if ((lObstacle = lChildMesh.AddComponent<NavMeshObstacle>()) != null) {
 			lObstacle.center = new Vector3(0, mSize.y / 2, 0);
-			lObstacle.size = mSize;
+			lObstacle.size = new Vector3(mSize.x + 0.1F, mSize.y, mSize.z + 0.1F);
 			lObstacle.carving = true;
-			float limit = 0F;
-			if (lObstacle.size.y < 0.2F) {
-				lObstacle.size = new Vector3(lObstacle.size.x, lObstacle.size.y + limit, lObstacle.size.z);
-				lObstacle.center = new Vector3(lObstacle.center.x, lObstacle.center.y + (limit / 2), lObstacle.center.z);
-			}
 		}
 
 		mUIBubbleInfo.SetInteractable(false);
@@ -279,7 +280,6 @@ public class ObjectEntity : AEntity
 	{
 		if (mODS != null) {
 			if (mDataScene.IsDataObjectsContains(mODS)) {
-				Debug.Log("Removing ODS : " + mDataScene.RemoveODS(mODS));
 				mDataScene.Serialize();
 			} else {
 				Debug.LogWarning("ODS not contained in DO");

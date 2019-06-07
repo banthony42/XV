@@ -149,10 +149,12 @@ public sealed class MovableEntity : MonoBehaviour
 					mAgent.stoppingDistance = LIMIT;
 					// Disable it until is not use
 					mAgent.enabled = false;
+				} else {
+					Debug.LogError("[MOVABLE ENTITY] Failed to add NavMeshAgent");
 				}
 
 				// Get the NavMeshObstacle to perform mutual exclusion with NavMeshAgent
-				mEntityObstacle = GetComponent<NavMeshObstacle>();
+				mEntityObstacle = GetComponentInChildren<NavMeshObstacle>();
 
 				if (mEntityObstacle == null) {
 					if ((mEntityObstacle = GetComponentInChildren<NavMeshObstacle>()) == null)
@@ -293,6 +295,7 @@ public sealed class MovableEntity : MonoBehaviour
 		mAgent.enabled = true;
 		// Update speed
 		mAgent.ResetPath();
+		Debug.LogError((iInfo.Parameters == null));
 		mAgent.speed *= iInfo.Parameters.Speed;
 		mAgent.acceleration *= iInfo.Parameters.Speed;
 		mAgent.SetDestination(iDestination);
