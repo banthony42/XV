@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
 {
 	public const string UI_MATERIAL = "Materials/UI/";
 	public const string MODELS_MATERIAL = "Materials/Models/";
-	public const string ITEM_BANK_PATH = "Prefabs/ItemBank/";
+	//public const string ITEM_BANK_PATH = "Prefabs/ItemBank/";
+	public const string ITEM_BANK_PATH = "Prefabs/BaricentredItemBank/";
 	public const string HUMAN_ITEM_PATH = "Prefabs/Character";
 	public const string EXTERN_ITEM_BANK_PATH = "SavedData/Models/";
 	public const string UI_TEMPLATE_PATH = "Prefabs/UI/";
@@ -89,6 +90,8 @@ public class GameManager : MonoBehaviour
 
 		Recorder = GetComponent<Recorder>();
 
+
+		// //Record on wake up
 		//StartCoroutine(Utils.WaitForAsync(1F, () => {
 
 		//	Recorder.StartRecord();
@@ -112,10 +115,8 @@ public class GameManager : MonoBehaviour
 				if (Physics.Raycast(lRay, out lHit)) {
 					if (lHit.transform == null)
 						SelectedEntity = null;
-					else if (lHit.transform.tag != ObjectEntity.TAG && lHit.transform.tag != UIBubbleInfo.TAG) {
-						Debug.Log(lHit.transform.tag);
+					else if (lHit.transform.tag != ObjectEntity.TAG && lHit.transform.tag != UIBubbleInfo.TAG)
 						SelectedEntity = null;
-					}
 				} else
 					SelectedEntity = null;
 			}
@@ -163,60 +164,29 @@ public class GameManager : MonoBehaviour
 
 		// Add UI Bubble 
 		GameObject lUIBubbleInfo;
-		if ((lUIBubbleInfo = Resources.Load<GameObject>("Prefabs/UI/UIBubbleInfo")) != null) {
+		if ((lUIBubbleInfo = Resources.Load<GameObject>("Prefabs/UI/UIBubbleInfo")) != null)
 			lUIBubbleInfo = Instantiate(lUIBubbleInfo, oGameObject.transform);
-			// The set position is make in ObjectEntity after the hierachy rework Start();
-		}
 
 		// Retrieve parameters for this item
 		EntityParameters lParameters;
 		lParameters = oGameObject.GetComponent<EntityParameters>();
 
-		// ---- Parent Creation ----
-
-		// Creating a new empty GameObject  - OffsetRotation Parent
-		GameObject lOffsetRotation = new GameObject();
-		lOffsetRotation.name = "ItemOffsetRotation";
-		lOffsetRotation.layer = oGameObject.layer;
-
-		// Creating a new empty GameObject - Highest Parent
-		GameObject lTopParent = new GameObject();
-		lTopParent.name = iODS.Name;
-		lTopParent.layer = oGameObject.layer;
-
 		// Setting positions
-		lTopParent.transform.position = iODS.Position + lBounds.center;
+		oGameObject.transform.position = Vector3.zero;
 
-		// Put the OffsetRotation as a child of the TopParent GameObject
-		lOffsetRotation.transform.parent = lTopParent.transform;
-
-		// Setting positions
-		lOffsetRotation.transform.position = Vector3.zero;
-		lOffsetRotation.transform.localPosition = Vector3.zero;
-		if (lParameters != null)
-			lOffsetRotation.transform.rotation = Quaternion.Euler(lParameters.Orientation);
-		else
-			lOffsetRotation.transform.rotation = Quaternion.Euler(Vector3.zero);
-
-		// Put the ObjectEntity as a child of the OffsetRotation GameObject
-		oGameObject.transform.parent = lOffsetRotation.transform;
-
-		// Setting the offset placement of the ObjectEntity regarding the new parent.
-		//oGameObject.transform.position = iODS.Position;
+		oGameObject.transform.position = iODS.Position;
 		oGameObject.transform.localEulerAngles = Vector3.zero;
-		oGameObject.transform.localPosition = -lBounds.center;
+
 		oGameObject.name = iODS.PrefabName + "_mesh";
 		oGameObject.transform.localScale = iODS.Scale;
-		lTopParent.transform.eulerAngles = iODS.Rotation;
 
-		// Setting GameEntity
+		// Setting ObjectEntity
 		ObjectEntity lObjectEntity = oGameObject.AddComponent<ObjectEntity>()
 				   .StartAnimation(iAnimatedPopping)
 				   .SaveEntity()
-				   .SetSize(lBounds.size)
-				   .SetCenter(lBounds.center)
-				   .SetParent(lTopParent, lOffsetRotation);
+				   .SetSize(lBounds.size);
 
+		// Setting AEntity
 		lObjectEntity.InitDataScene(mCurrentDataScene);
 		lObjectEntity.SetObjectDataScene(iODS);
 		lObjectEntity.SetUIBubbleInfo(lUIBubbleInfo.GetComponent<UIBubbleInfo>());
@@ -224,18 +194,10 @@ public class GameManager : MonoBehaviour
 		// If this item can move - Add MovableEntity script
 		if (lParameters != null && lParameters.Movable) {
 			oGameObject.AddComponent<MovableEntity>()
-					   .SetParent(lTopParent, lOffsetRotation)
 					   .SetEntity(lObjectEntity);
 		}
 
-		Utils.SetLayerRecursively(lTopParent, LayerMask.NameToLayer("dropable"));
-
-        // Check if this item have Interaction, and init it's field.
-        AInteraction lInteraction = oGameObject.GetComponent<AInteraction>();
-        if (lInteraction != null) {
-            lInteraction.SetEntityParameters(lParameters)
-                        .SetObjectEntity(lObjectEntity);
-        }
+		Utils.SetLayerRecursively(oGameObject, LayerMask.NameToLayer("dropable"));
 
 		return oGameObject;
 	}
@@ -271,17 +233,25 @@ public class GameManager : MonoBehaviour
 		return oGameObject;
 	}
 
-	public void UnloadScene()
+	public IEnumerator UnloadSceneAsync()
 	{
 		AEntity[] lObjectEntities = AEntity.AllEntities;
 
 		foreach (AEntity lObjectEntity in lObjectEntities) {
+
 			lObjectEntity.Dispose();
 		}
-		if (HumanEntity.Instance != null)
-			HumanEntity.Instance.Dispose();
+
+		while (AEntity.AllEntities.Length != 0)
+			yield return null;
+
 		mCurrentDataScene = null;
 		XV_UI.Instance.SceneNameText.text = "-";
+	}
+
+	public void UnloadScene()
+	{
+
 	}
 
 	public void LoadScene(DataScene iDataScene)
@@ -291,7 +261,7 @@ public class GameManager : MonoBehaviour
 
 	private IEnumerator LoadSceneAsync(DataScene iDataScene)
 	{
-		UnloadScene();
+		yield return UnloadSceneAsync();
 		mCurrentDataScene = iDataScene;
 		XV_UI.Instance.SceneNameText.text = "Scene: " + iDataScene.SceneName.Replace(".xml", "");
 

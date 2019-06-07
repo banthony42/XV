@@ -1757,7 +1757,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contentPanel: {fileID: 224336009954246954}
-  modelManager: {fileID: 0}
+  modelManager: {fileID: 224466270860109544, guid: 0e7833e9a7fb841b8bc88f8501b87d1f,
+    type: 2}
 --- !u!114 &114645563564836896
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4300,6 +4301,28 @@ PlayableDirector:
   - key: {fileID: 114346067781913608, guid: bfe71d91c0e534e6e966b955a5377955, type: 2}
     value: {fileID: 0}
   - key: {fileID: 114052137986390688, guid: bfe71d91c0e534e6e966b955a5377955, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 0}
+  - key: {fileID: 0}
     value: {fileID: 0}
   m_ExposedReferences:
     m_References: []

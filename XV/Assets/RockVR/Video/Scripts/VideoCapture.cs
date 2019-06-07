@@ -384,13 +384,14 @@ namespace RockVR.Video
             {
                 encodeThread.Abort();
             }
+			// Update current status.
+			status = VideoCaptureCtrl.StatusType.STARTED;
+
             // Start encoding thread.
             encodeThread = new Thread(FrameEncodeThreadFunction);
             encodeThread.Priority = System.Threading.ThreadPriority.Lowest;
             encodeThread.IsBackground = true;
             encodeThread.Start();
-            // Update current status.
-            status = VideoCaptureCtrl.StatusType.STARTED;
         }
         /// <summary>
         /// Stop capture video.

@@ -32,6 +32,8 @@ public abstract class AEntity : MonoBehaviour
 
 	protected UIBubbleInfo mUIBubbleInfo;
 
+	protected EntityParameters mEntityParameters;
+
 	protected DataScene mDataScene;
 
 	protected Vector3 mSize;
@@ -40,11 +42,28 @@ public abstract class AEntity : MonoBehaviour
 
 	private AObjectDataScene mODS;
 
+	private Queue<Color> mOriginalColorsMaterial;
+
 	public abstract void Dispose();
 
 	protected virtual void Awake()
 	{
 		PostPoppingAction = new List<Action>();
+		mOriginalColorsMaterial = new Queue<Color>();
+		mEntityParameters = GetComponent<EntityParameters>();
+
+		if (mEntityParameters != null && GetComponent<AInteraction>() == null)
+			gameObject.AddComponent<GenericInteraction>();
+
+		//mAInteraction = GetComponent<AInteraction>();
+
+		PostPoppingAction.Add(() => {
+			if (mODS.IsColored) {
+				mODS.IsColored = false; // This will be reset to true in the followed SetColored
+				// We set it to false because if IsColored is true, it will not save the default texture
+				SetColored(mODS.Color);
+			}
+		});
 	}
 
 	public AEntity InitDataScene(DataScene iDataScene)
@@ -58,9 +77,24 @@ public abstract class AEntity : MonoBehaviour
 		mODS = iODS;
 	}
 
+	protected virtual void Start()
+	{
+		// Adding this to all ObjectEntities
+		if (sAllEntites == null)
+			sAllEntites = new List<AEntity>();
+		sAllEntites.Add(this);
+	}
+
+	protected virtual void OnDestroy()
+	{
+		if (sAllEntites != null)
+			sAllEntites.Remove(this);
+	}
+
 	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
 	{
 		mUIBubbleInfo = iBubbleInfo;
+
 		mUIBubbleInfo.Parent = this;
 		if (mODS != null)
 			mUIBubbleInfo.SetUIName(mODS.Name);
@@ -70,7 +104,7 @@ public abstract class AEntity : MonoBehaviour
 		return this;
 	}
 
-	public Button CreateBubleInfoButton(UIBubbleInfoButton iButtonInfo)
+	public Button CreateBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
 	{
 		if (mUIBubbleInfo == null) {
 			Debug.LogError("[AENTITY] mUIBubbleInfo is null when create button");
@@ -79,19 +113,19 @@ public abstract class AEntity : MonoBehaviour
 		return mUIBubbleInfo.CreateButton(iButtonInfo);
 	}
 
-    public void DestroyBubleInfoButton(UIBubbleInfoButton iButtonInfo)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
-    }
+	public void DestroyBubbleInfoButton(UIBubbleInfoButton iButtonInfo)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iButtonInfo.Tag);
+	}
 
-    public void DestroyBubleInfoButton(string iTag)
-    {
-        if (mUIBubbleInfo != null)
-            mUIBubbleInfo.DestroyButton(iTag);
-    }
+	public void DestroyBubbleInfoButton(string iTag)
+	{
+		if (mUIBubbleInfo != null)
+			mUIBubbleInfo.DestroyButton(iTag);
+	}
 
-    public static void ForEachEntities(Action<AEntity> iAction)
+	public static void ForEachEntities(Action<AEntity> iAction)
 	{
 		if (iAction == null)
 			return;
@@ -99,6 +133,95 @@ public abstract class AEntity : MonoBehaviour
 		AEntity[] lEntities = AllEntities;
 		foreach (AEntity lEntity in lEntities)
 			iAction(lEntity);
+	}
+
+	public static void HideNoInteractable(EntityParameters.EntityType[] iTypes,
+		AEntity iIgnored = null)
+	{
+		ForEachEntities((iEntity) => {
+			if (iEntity == iIgnored)
+				return;
+			if (iEntity.mEntityParameters != null) {
+				foreach (EntityParameters.EntityType lType in iTypes) {
+					if (iEntity.mEntityParameters.Type == lType) {
+						iEntity.gameObject.SetActive(true);
+						return;
+					}
+				}
+			}
+			iEntity.gameObject.SetActive(false);
+		});
+	}
+
+	public static void DisableHideNoInteractable()
+	{
+		ForEachEntities((iEntity) => {
+			iEntity.gameObject.SetActive(true);
+		});
+	}
+
+	public void ResetColor()
+	{
+		if (!mODS.IsColored)
+			return;
+		
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+				Material[] lMaterials = lR.materials;
+
+				if (mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+						lMaterial.color = mOriginalColorsMaterial.Dequeue();
+					}
+				}
+
+				lR.materials = lMaterials;
+			}
+		});
+
+		mODS.IsColored = false;
+		mODS.OriginalColorsMaterial = new List<Color>(mOriginalColorsMaterial);
+		mDataScene.Serialize();
+	}
+
+	public void SetColored(Color iColor)
+	{
+		if (!mODS.IsColored)
+			mOriginalColorsMaterial.Clear();
+		
+		mODS.Color = iColor;
+
+		Utils.BrowseChildRecursively(gameObject, (iObject) => {
+
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+
+				Material[] lMaterials = lR.materials;
+
+				if (mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+						lMaterial.color = iColor;
+					}
+				} else if (!mODS.IsColored) {
+					foreach (Material lMaterial in lMaterials) {
+
+						mOriginalColorsMaterial.Enqueue(lMaterial.color);
+						lMaterial.color = iColor;
+					}
+
+				}
+
+				lR.materials = lMaterials;
+			}
+		});
+
+		mODS.IsColored = true;
+		mODS.OriginalColorsMaterial = new List<Color>(mOriginalColorsMaterial);
+		mDataScene.Serialize();
+		//Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
 	}
 
 	// This function Instantiate associated Model & make it child of OffsetRotation
@@ -110,20 +233,20 @@ public abstract class AEntity : MonoBehaviour
 		Material lGhostMaterial = null;
 
 		if ((lGhostMaterial = Resources.Load<Material>(GameManager.UI_MATERIAL + "Ghost")) == null) {
-			Debug.LogError("Load material : 'Ghost' failed.");
+			Debug.LogError("[AENTITY] Load material : 'Ghost' failed.");
 			return null;
 		}
 
 		if (mODS.Type == ObjectDataSceneType.BUILT_IN) {
 			lGameObject = ModelLoader.Instance.GetModelGameObject(mODS.PrefabName);
 			if (lGameObject == null) {
-				Debug.LogError("Load prefab " + mODS.PrefabName + " failed.");
+				Debug.LogError("[AENTITY] Load prefab " + mODS.PrefabName + " failed.");
 				return null;
 			}
 		} else {
 			lGameObject = ModelLoader.Instance.GetModelGameObject(mODS.PrefabName);
 			if (lGameObject == null) {
-				Debug.LogError("Load model " + mODS.PrefabName + " failed.");
+				Debug.LogError("[AENTITY] Load model " + mODS.PrefabName + " failed.");
 				return null;
 			}
 		}
@@ -133,13 +256,13 @@ public abstract class AEntity : MonoBehaviour
 		Utils.BrowseChildRecursively(oGhostObject, (iObject) => {
 
 			// Perform this action on each child of iObject, which is oGhostObject
-			Renderer r = iObject.GetComponent<Renderer>();
-			if (r != null) {
-				Material[] o = new Material[r.materials.Length];
-				for (int i = 0; i < o.Length; i++) {
-					o.SetValue(lGhostMaterial, i);
+			Renderer lR = iObject.GetComponent<Renderer>();
+			if (lR != null) {
+				Material[] lO = new Material[lR.materials.Length];
+				for (int lIndex = 0; lIndex < lO.Length; lIndex++) {
+					lO.SetValue(lGhostMaterial, lIndex);
 				}
-				r.materials = o;
+				lR.materials = lO;
 			}
 
 			MonoBehaviour[] lMBs = iObject.GetComponents<MonoBehaviour>();

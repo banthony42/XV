@@ -38,11 +38,8 @@ public class HumanEntity : AEntity
 
 		set
 		{
-			if (!value) {
-				Utils.PrintStackTrace();
-				Debug.Log("ObjectEntity : " + mHDS.Name + "Has been unselected");
+			if (!value)
 				UIBubbleInfo.Hide();
-			}
 			mSelected = value;
 		}
 	}
@@ -63,12 +60,9 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	private void Start()
+	protected override void Start()
 	{
-		// Adding this to all ObjectEntities
-		if (sAllEntites == null)
-			sAllEntites = new List<AEntity>();
-		sAllEntites.Add(this);
+		base.Start();
 
 		mMovableEntity = GetComponent<MovableEntity>();
 		mAnimator = GetComponent<Animator>();
@@ -95,10 +89,9 @@ public class HumanEntity : AEntity
 			}
 		});
 
-		mMovableEntity.SetParent(this.gameObject, this.gameObject);
 		mMovableEntity.SetEntity(this);
-		mMovableEntity.OnEndMovement.Add(OnEndMovement);
 		mMovableEntity.OnStartMovement.Add(OnStartMovement);
+		mMovableEntity.OnEndMovement.Add(OnEndMovement);
 
 		StartCoroutine(PostPoppingAsync());
 	}
@@ -112,7 +105,6 @@ public class HumanEntity : AEntity
 	{
 		mAnimator.SetFloat("Forward", 0.5F);
 	}
-
 
 	private void Update()
 	{
@@ -166,9 +158,9 @@ public class HumanEntity : AEntity
 		}
 	}
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-
+		base.OnDestroy();
 	}
 
 	public override void Dispose()
@@ -220,7 +212,7 @@ public class HumanEntity : AEntity
 	public HumanEntity RemoveEntity()
 	{
 		if (mHDS != null && mDataScene.Human != null) {
-			mDataScene.Human = null;
+			mDataScene.SetHDS(null);
 			mDataScene.Serialize();
 		}
 		return this;
@@ -232,7 +224,7 @@ public class HumanEntity : AEntity
 
 		mHDS = (HumanDataScene)iODS;
 		if (mDataScene.Human != mHDS) {
-			mDataScene.Human = mHDS;
+			mDataScene.SetHDS(mHDS);
 			mDataScene.Serialize();
 		}
 	}

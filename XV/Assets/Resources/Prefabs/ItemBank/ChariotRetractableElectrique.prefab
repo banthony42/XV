@@ -262,4 +262,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TypeOf: 5
   CanMove: 1
+  BadPositionOffset: 1
   RotationOffset: {x: 0, y: 90, z: 0}

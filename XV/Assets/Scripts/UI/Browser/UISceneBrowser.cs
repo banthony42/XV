@@ -224,7 +224,6 @@ public sealed class UISceneBrowser : MonoBehaviour
 
 	public void HideBrowser(bool iKeepKeyboardLocked = false)
 	{
-		XV_UI.Instance.UnlockGUI();
 		if (mDisplayed) {
 			mDisplayed = false;
 			if (mCanvasGroup != null) {

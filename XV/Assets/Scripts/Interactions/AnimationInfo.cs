@@ -4,20 +4,15 @@ using UnityEngine;
 
 public class AnimationInfo
 {
-    public enum State { PLAY, PAUSE, STOP };
-
-    /// <summary>
-    /// Global state of all animations.
-    /// </summary>
-    public static State sGlobalState;
+	public enum State { PLAY, PAUSE, STOP };
 
 	/// <summary>
-    /// Global speed of all animations.
-    /// </summary>
-    public static float sGlobalSpeed;
+	/// Global state of the all animations.
+	/// </summary>
+	public static State sGlobalState;
 
-    /// <summary>
-    /// The parameters use by the Implementation of the Animation.
-    /// </summary>
-    public AnimationParameters Parameters;
+	/// <summary>
+	/// The parameters use by the Implementation of the Animation.
+	/// </summary>
+	public AnimationParameters Parameters;
 }

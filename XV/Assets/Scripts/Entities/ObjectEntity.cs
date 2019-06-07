@@ -10,7 +10,6 @@ public class ObjectEntity : AEntity
 {
 	public static string TAG = "ObjectEntity";
 
-
 	private ObjectDataScene mODS;
 
 	private bool mSelected;
@@ -22,16 +21,7 @@ public class ObjectEntity : AEntity
 
 	private Vector3 mMouseOriginClick;
 
-	private Vector3 mCenter;
-	private GameObject mCenteredParent;
-	private GameObject mOffsetRotationParent;
-
 	public bool IsBusy { get { return mBusy; } }
-
-	public Vector3 Center
-	{
-		get { return mCenter; }
-	}
 
 	public override bool Selected
 	{
@@ -39,43 +29,36 @@ public class ObjectEntity : AEntity
 
 		set
 		{
-			if (!value) {
-				Debug.Log("ObjectEntity : " + mODS.Name + "Has been unselected");
+			if (!value)
 				mUIBubbleInfo.Hide();
-			}
 			mSelected = value;
 		}
 	}
 
 	public override string Name
 	{
-		get { return mCenteredParent.name; }
+		get { return gameObject.name; }
 
 		set
 		{
 			if (string.IsNullOrEmpty(value))
 				return;
 
-			mCenteredParent.name = value;
+			gameObject.name = value;
 			name = value + "_mesh";
 			mODS.Name = value;
 			SaveEntity();
 		}
 	}
 
-	protected void Start()
+	protected override void Start()
 	{
-		// Adding this to all ObjectEntities
-		if (sAllEntites == null)
-			sAllEntites = new List<AEntity>();
-		sAllEntites.Add(this);
+		base.Start();
 
 		// Set tag
 		gameObject.tag = TAG;
 
-		mCenteredParent = transform.parent.gameObject.transform.parent.gameObject;
-
-		mUIBubbleInfo.GetComponent<RectTransform>().localPosition = new Vector3(mCenter.x, mSize.y + 1, mCenter.z);
+		mUIBubbleInfo.GetComponent<RectTransform>().localPosition = new Vector3(0, mSize.y + 1, 0);
 
 		StartCoroutine(PostPoppingAsync());
 	}
@@ -108,10 +91,10 @@ public class ObjectEntity : AEntity
 
 		// Rotation section
 		if (mControlPushed && mMouseDown) {
-			mCenteredParent.transform.rotation = Quaternion.Euler(
-				mCenteredParent.transform.rotation.eulerAngles.x,
-				mCenteredParent.transform.rotation.eulerAngles.y + (Input.mousePosition.x - mMouseOriginClick.x),
-				mCenteredParent.transform.rotation.eulerAngles.z);
+			transform.rotation = Quaternion.Euler(
+				transform.rotation.eulerAngles.x,
+				transform.rotation.eulerAngles.y + (Input.mousePosition.x - mMouseOriginClick.x),
+				transform.rotation.eulerAngles.z);
 
 			mMouseOriginClick = Input.mousePosition;
 		}
@@ -125,19 +108,15 @@ public class ObjectEntity : AEntity
 			if (Physics.Raycast(lRay, out lHit, 1000, LayerMask.GetMask("dropable"))) {
 				Debug.DrawRay(lRay.origin, lRay.direction * lHit.distance, Color.red, 1);
 
-				lHit.point = new Vector3(
-					lHit.point.x,
-					lHit.point.y + mCenter.y,
-					lHit.point.z);
-				mCenteredParent.transform.position = lHit.point;
+				transform.position = lHit.point;
 			}
 		}
 	}
 
 	public override void ResetWorldState()
 	{
-		mCenteredParent.transform.position = mODS.Position + mCenter;
-		mCenteredParent.transform.eulerAngles = mODS.Rotation;
+		transform.position = mODS.Position;
+		transform.eulerAngles = mODS.Rotation;
 	}
 
 	// Place all the code you want to execute only after all the mesh enable animations
@@ -174,15 +153,16 @@ public class ObjectEntity : AEntity
 
 		// Add a Nav Mesh obstacle on each object
 		NavMeshObstacle lObstacle;
-		if ((lObstacle = transform.gameObject.AddComponent<NavMeshObstacle>()) != null) {
-			lObstacle.center = mCenter;
-			lObstacle.size = mSize;
+		GameObject lChildMesh = null;
+		if (gameObject.transform.GetChild(0) != null) {
+			lChildMesh = gameObject.transform.GetChild(0).gameObject;
+		}
+
+
+		if ((lObstacle = lChildMesh.AddComponent<NavMeshObstacle>()) != null) {
+			lObstacle.center = new Vector3(0, mSize.y / 2, 0);
+			lObstacle.size = new Vector3(mSize.x + 0.1F, mSize.y, mSize.z + 0.1F);
 			lObstacle.carving = true;
-			float limit = 0F;
-			if (lObstacle.size.y < 0.2F) {
-				lObstacle.size = new Vector3(lObstacle.size.x, lObstacle.size.y + limit, lObstacle.size.z);
-				lObstacle.center = new Vector3(lObstacle.center.x, lObstacle.center.y + (limit / 2), lObstacle.center.z);
-			}
 		}
 
 		mUIBubbleInfo.SetInteractable(false);
@@ -194,11 +174,9 @@ public class ObjectEntity : AEntity
 	}
 
 	// Called by unity only !
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-		if (sAllEntites != null)
-			sAllEntites.Remove(this);
-		Destroy(mCenteredParent);
+		base.OnDestroy();
 	}
 
 	// Called by XV
@@ -211,12 +189,6 @@ public class ObjectEntity : AEntity
 	private IEnumerator DestroyObjectsTimedAsync()
 	{
 		mBusy = true;
-
-		// Detach from parent & delete parent
-		//if (transform.parent != null) {
-		//    transform.parent = null;
-		//    Destroy(mCenteredParent);
-		//}
 
 		Transform[] lTransforms = gameObject.GetComponentsInChildren<Transform>();
 		Array.Reverse(lTransforms);
@@ -234,13 +206,11 @@ public class ObjectEntity : AEntity
 		mBusy = false;
 	}
 
-
 	public ObjectEntity StartAnimation(bool iAnimatedPopping)
 	{
 		if (iAnimatedPopping && !mBusy) {
 
 			Transform[] lTransforms = gameObject.GetComponentsInChildren<Transform>();
-			Array.Reverse(lTransforms);
 
 			if (lTransforms.Length > 0) {
 
@@ -289,38 +259,17 @@ public class ObjectEntity : AEntity
 		}
 	}
 
-	public ObjectEntity SetCenter(Vector3 iVector)
-	{
-		mCenter = iVector;
-		return this;
-	}
-
 	public ObjectEntity SetSize(Vector3 iVector)
 	{
 		mSize = iVector;
 		return this;
 	}
 
-	public ObjectEntity SetParent(GameObject iTopParent, GameObject iOffsetRotationParent)
-	{
-		mCenteredParent = iTopParent;
-		mCenteredParent.tag = TAG;
-
-		mOffsetRotationParent = iOffsetRotationParent;
-		mOffsetRotationParent.tag = TAG;
-		return this;
-	}
-
 	public ObjectEntity SaveEntity()
 	{
-		if (mODS != null && mCenteredParent != null) {
-			Vector3 lPosition = new Vector3(
-				mCenteredParent.transform.position.x - mCenter.x,
-				transform.position.y,
-				mCenteredParent.transform.position.z - mCenter.z
-			);
-			mODS.Position = lPosition;
-			mODS.Rotation = mCenteredParent.transform.rotation.eulerAngles;
+		if (mODS != null) {
+			mODS.Position = transform.position; ;
+			mODS.Rotation = transform.rotation.eulerAngles;
 			mODS.Scale = transform.localScale;
 			mDataScene.Serialize();
 		}
@@ -331,7 +280,6 @@ public class ObjectEntity : AEntity
 	{
 		if (mODS != null) {
 			if (mDataScene.IsDataObjectsContains(mODS)) {
-				Debug.Log("Removing ODS : " + mDataScene.RemoveODS(mODS));
 				mDataScene.Serialize();
 			} else {
 				Debug.LogWarning("ODS not contained in DO");

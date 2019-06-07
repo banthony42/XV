@@ -23,6 +23,15 @@ public sealed class MovableEntity : MonoBehaviour
 		ROTATE,
 	}
 
+	public enum MoveStatus
+	{
+		FALSE,
+
+		TRUE,
+
+		END
+	}
+
 	private const float LIMIT = 0.5F;
 
 	private const float ROT_SPEED = 500F;
@@ -44,10 +53,6 @@ public sealed class MovableEntity : MonoBehaviour
 	private Renderer mUITargetRenderer;
 
 	private GameObject mUITargetTemplate;
-
-	private GameObject mCenteredParent;
-
-	private GameObject mOffsetRotationParent;
 
 	private GameObject mGhostEntity;
 
@@ -101,13 +106,6 @@ public sealed class MovableEntity : MonoBehaviour
 
 	public List<Action> OnEndMovement { get; private set; }
 
-	public MovableEntity SetParent(GameObject iTopParent, GameObject iOffsetRotationParent)
-	{
-		mCenteredParent = iTopParent;
-		mOffsetRotationParent = iOffsetRotationParent;
-		return this;
-	}
-
 	public MovableEntity SetEntity(AEntity iObjectEntity)
 	{
 		mObjectEntity = iObjectEntity;
@@ -120,7 +118,7 @@ public sealed class MovableEntity : MonoBehaviour
 
 				// Add Move button & Keep track of the button image to edit color
 				Button lButton;
-				lButton = iObj.CreateBubleInfoButton(new UIBubbleInfoButton {
+				lButton = iObj.CreateBubbleInfoButton(new UIBubbleInfoButton {
 					Text = "Move",
 					ClickAction = (iObject) => {
 						Debug.LogWarning("Deplacer: " + iObject.name + " has been clicked");
@@ -130,7 +128,7 @@ public sealed class MovableEntity : MonoBehaviour
 				mMoveButtonColor = lButton.GetComponent<Image>();
 
 				// Add Rotate Button & Keep track of the button image to edit color
-				lButton = iObj.CreateBubleInfoButton(new UIBubbleInfoButton {
+				lButton = iObj.CreateBubbleInfoButton(new UIBubbleInfoButton {
 					Text = "Rotate",
 					ClickAction = (iObject) => {
 						Debug.LogWarning("Orienter: " + iObject.name + " has been clicked");
@@ -140,7 +138,7 @@ public sealed class MovableEntity : MonoBehaviour
 				mRotateButtonColor = lButton.GetComponent<Image>();
 
 				// Add NavMeshAgent to move the object
-				if ((mAgent = mCenteredParent.AddComponent<NavMeshAgent>()) != null) {
+				if ((mAgent = gameObject.AddComponent<NavMeshAgent>()) != null) {
 					// Agent radius is the biggest size of the bounding box
 					mAgent.radius = (iObj.Size.x > iObj.Size.z) ? (iObj.Size.x / 2) : (iObj.Size.z / 2);
 					// Increase a little the radius to avoid limit of a mesh
@@ -151,10 +149,12 @@ public sealed class MovableEntity : MonoBehaviour
 					mAgent.stoppingDistance = LIMIT;
 					// Disable it until is not use
 					mAgent.enabled = false;
+				} else {
+					Debug.LogError("[MOVABLE ENTITY] Failed to add NavMeshAgent");
 				}
 
 				// Get the NavMeshObstacle to perform mutual exclusion with NavMeshAgent
-				mEntityObstacle = GetComponent<NavMeshObstacle>();
+				mEntityObstacle = GetComponentInChildren<NavMeshObstacle>();
 
 				if (mEntityObstacle == null) {
 					if ((mEntityObstacle = GetComponentInChildren<NavMeshObstacle>()) == null)
@@ -200,12 +200,12 @@ public sealed class MovableEntity : MonoBehaviour
 					mUITargetRenderer.material.color = Color.green;
 				else if (mUITargetRenderer != null)
 					mUITargetRenderer.material.color = Color.red;
-			} else if (mUITargetRenderer != null) 
+			} else if (mUITargetRenderer != null)
 				mUITargetRenderer.material.color = Color.red;
 
 			// On click leave this mode and continue animation movement adding process
 			if (Input.GetMouseButtonDown(0))
-				Move();
+				AddAndExecuteMove();
 
 		} else if (mEditionMode == EditionMode.ROTATE) {
 
@@ -232,14 +232,14 @@ public sealed class MovableEntity : MonoBehaviour
 				if (mAngle > 360F)
 					mAngle = mAngle % 360F;
 				// Rotate the ghost around the center of the object, which is the offset rotation parent
-				mGhostEntity.transform.RotateAround(mOffsetRotationParent.transform.position, Vector3.up, lAngle);
+				mGhostEntity.transform.RotateAround(gameObject.transform.position, Vector3.up, lAngle);
 			}
 
 			// When 'r' is pressed leave this mode and continue animation orientation adding process
 			if (Input.GetKeyDown(KeyCode.R)) {
-				Quaternion lStart = mCenteredParent.transform.rotation;
+				Quaternion lStart = gameObject.transform.rotation;
 				// Send rotation destination to the function
-				Rotate(mCenteredParent.transform.rotation * Quaternion.Euler(lStart.x, lStart.y + mAngle, lStart.z));
+				Rotate(gameObject.transform.rotation * Quaternion.Euler(lStart.x, lStart.y + mAngle, lStart.z));
 			}
 
 			if (Input.GetMouseButtonDown(0))
@@ -247,15 +247,12 @@ public sealed class MovableEntity : MonoBehaviour
 		}
 	}
 
-	private void Move()
+	private void AddAndExecuteMove()
 	{
 		// Reset Button & Mode
 		ResetMode();
 
 		Vector3 lHitPoint = Vector3.zero;
-		//float lActionDuration = 0F;
-		float lBaseSpeed = 3.5F;
-		float lBaseAccel = 8F;
 
 		// Check the hit.point clicked is the ground
 		if ((GetHitPointFromMouseClic(ref lHitPoint, "scene"))) {
@@ -263,66 +260,68 @@ public sealed class MovableEntity : MonoBehaviour
 			// TODO Calcul movement duration ...
 
 			// Add the code that do the animation in the Action timeline
-			TimelineManager.Instance.AddTranslation(gameObject, iInfo => {
-				
-				if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP) {
-					mAgent.enabled = false;
-					return true;
-				}
-
-				if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE) {
-					mAgent.enabled = false;
-					return false;
-				}
-
-				// Check NavMesh component are present
-				if (mEntityObstacle == null || mAgent == null) {
-					Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
-					return true;
-				}
-
-				// Disable Obstacle
-				if (mEntityObstacle.enabled) {
-					mEntityObstacle.enabled = false;
-					return false;
-				}
-
-				// Active Agent
-				mAgent.enabled = true;
-				// Update speed
-				mAgent.ResetPath();
-				mAgent.speed = lBaseSpeed* AnimationInfo.sGlobalSpeed;
-				mAgent.acceleration = lBaseAccel * AnimationInfo.sGlobalSpeed;
-				mAgent.SetDestination(lHitPoint);
-
-				// Check if we have reached the destination
-				if (!mAgent.pathPending) {
-					if (mAgent.remainingDistance <= mAgent.stoppingDistance) {
-						if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon) {
-							// Switch into obstacle mode
-							mAgent.enabled = false;
-							mEntityObstacle.enabled = true;
-							// End of this Action
-
-							foreach (Action lAction in OnEndMovement) {
-								if (lAction != null)
-									lAction();
-							}
-
-							return true;
-						}
-					}
-				}
-				foreach (Action lAction in OnStartMovement) {
-					if (lAction != null)
-						lAction();
-				}
-				return false;
-			});
-
-			//OnStartMove();
+			TimelineManager.Instance.AddAnimation(gameObject, iInfo => {
+				return Move(lHitPoint, iInfo);
+			}, new AnimationParameters {Speed = 1});
 
 		}
+	}
+
+	public bool Move(Vector3 iDestination, AnimationInfo iInfo, Action iOnEndMovement = null)
+	{
+		if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP) {
+			mAgent.enabled = false;
+			return true;
+		}
+
+		if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE) {
+			mAgent.enabled = false;
+			return false;
+		}
+
+		// Check NavMesh component are present
+		if (mEntityObstacle == null || mAgent == null) {
+			Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
+			return true;
+		}
+
+		// Disable Obstacle
+		if (mEntityObstacle.enabled) {
+			mEntityObstacle.enabled = false;
+			return false;
+		}
+
+		// Active Agent
+		mAgent.enabled = true;
+		// Update speed
+		mAgent.ResetPath();
+		mAgent.speed *= iInfo.Parameters.Speed;
+		mAgent.acceleration *= iInfo.Parameters.Speed;
+		mAgent.SetDestination(iDestination);
+
+		// Check if we have reached the destination
+		if (!mAgent.pathPending) {
+			if (mAgent.remainingDistance <= mAgent.stoppingDistance) {
+				if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon) {
+					// Switch into obstacle mode
+					mAgent.enabled = false;
+					mEntityObstacle.enabled = true;
+					// End of this Action
+
+					foreach (Action lAction in OnEndMovement) {
+						if (lAction != null)
+							lAction();
+					}
+
+					return true;
+				}
+			}
+		}
+		foreach (Action lAction in OnStartMovement) {
+			if (lAction != null)
+				lAction();
+		}
+		return false;
 	}
 
 	private void Rotate(Quaternion iTarget)
@@ -347,10 +346,10 @@ public sealed class MovableEntity : MonoBehaviour
 			}
 
 			// Update rotation performed according to speed
-			mRotationPerformed += Time.deltaTime * AnimationInfo.sGlobalSpeed;
+			mRotationPerformed += Time.deltaTime * iInfo.Parameters.Speed;
 
 			// Rotate to the correct amount
-			mCenteredParent.transform.rotation = Quaternion.Slerp(mCenteredParent.transform.rotation, iTarget, mRotationPerformed / lActionDuration);
+			gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, iTarget, mRotationPerformed / lActionDuration);
 
 			// When the counter reach the duration, the rotation is finished
 			if (mRotationPerformed > lActionDuration) {

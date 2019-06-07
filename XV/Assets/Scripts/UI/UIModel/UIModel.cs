@@ -19,8 +19,6 @@ public sealed class UIModel : MonoBehaviour,
 
 	private GameObject mSelectedElement;
 
-	private Vector3 mCentroid;
-
 	private bool mMouseOver;
 
 	private bool mLockSelection;
@@ -38,8 +36,8 @@ public sealed class UIModel : MonoBehaviour,
 		if (mElementText == null)
 			Debug.LogError("[ERROR] Ui Model element doesn't contain Text!");
 
-        if (Model.HumanModel)
-            Model.GameObject.GetComponent<HumanEntity>().enabled = false;
+		if (Model.HumanModel)
+			Model.GameObject.GetComponent<HumanEntity>().enabled = false;
 	}
 
 	private void Update()
@@ -89,12 +87,6 @@ public sealed class UIModel : MonoBehaviour,
 				Debug.DrawRay(lRay.origin, lRay.direction * lHit.distance, Color.red, 1);
 
 				mSelectedElement.transform.position = lHit.point;
-				mSelectedElement.transform.position +=
-					(mSelectedElement.transform.position - mSelectedElement.transform.TransformPoint(mCentroid));
-				// new at each drag ... find a way to update position.y without new
-
-				mSelectedElement.transform.position = new Vector3(
-					mSelectedElement.transform.position.x, lHit.point.y, mSelectedElement.transform.position.z);
 			}
 		}
 	}
@@ -102,19 +94,19 @@ public sealed class UIModel : MonoBehaviour,
 	// On End restore Layer to dropable, build the object using selectedElement, delete SelectedElement.
 	public void OnEndDrag(PointerEventData eventData)
 	{
-        if (!Model.HumanModel) {
-            ObjectDataScene lODS = new ObjectDataScene {
-                Name = mElementText.text,
-                PrefabName = mElementText.text,
-                Type = Model.Type,
-                Position = mSelectedElement.transform.position,
-                Rotation = Model.GameObject.transform.rotation.eulerAngles,
-                Scale = mSelectedElement.transform.localScale,
-            };
+		if (!Model.HumanModel) {
+			ObjectDataScene lODS = new ObjectDataScene {
+				Name = mElementText.text,
+				PrefabName = mElementText.text,
+				Type = Model.Type,
+				Position = mSelectedElement.transform.position,
+				Rotation = Model.GameObject.transform.rotation.eulerAngles,
+				Scale = mSelectedElement.transform.localScale,
+			};
 
-            GameManager.Instance.BuildObject(lODS);
-            Destroy(mSelectedElement);
-        } else if (HumanEntity.Instance == null) {
+			GameManager.Instance.BuildObject(lODS);
+			Destroy(mSelectedElement);
+		} else if (HumanEntity.Instance == null) {
 
 			HumanDataScene lHDS = new HumanDataScene {
 				Name = mElementText.text,
@@ -137,20 +129,14 @@ public sealed class UIModel : MonoBehaviour,
 		if (mSelectedElement != null && mLockSelection)
 			return;
 
-
-        if (Model.HumanModel && HumanEntity.Instance != null)
+		if (Model.HumanModel && HumanEntity.Instance != null)
 			return;
-        
+
 		// Instantiate temporary object during drag & drop, it will follow mouse
 		if ((mSelectedElement = Instantiate(Model.GameObject)) == null)
 			return;
 
-		// Retrieve parameters for this item
-		EntityParameters lParameters;
-		if ((lParameters = mSelectedElement.GetComponent<EntityParameters>()) != null) {
-			// Update orientation
-			mSelectedElement.transform.eulerAngles = lParameters.Orientation;
-		}
+		mSelectedElement.transform.eulerAngles = Vector3.zero;
 
 		mSelectedElement.SetActive(false);
 		Utils.SetLayerRecursively(mSelectedElement, LayerMask.NameToLayer("Ignore Raycast"));
@@ -160,7 +146,5 @@ public sealed class UIModel : MonoBehaviour,
 			Debug.LogError("[UI_MODEL] Allocation Error.");
 			return;
 		}
-
-		mCentroid = Utils.ComputeBoundingBox(mSelectedElement).center;
 	}
 }
