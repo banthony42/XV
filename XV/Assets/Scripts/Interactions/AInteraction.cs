@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +11,11 @@ public class AnimationParameters
 	/// The target type use for this animation
 	/// </summary>
 	public AnimationTargetType TargetType;
+
+	/// <summary>
+	/// Animation's speed
+	/// </summary>
+	public float Speed;
 
 	/// <summary>
 	/// Object use as target for an Animation.
@@ -148,6 +153,7 @@ public abstract class AInteraction : MonoBehaviour
 		mParameters = GetComponent<EntityParameters>();
 
 		if (mEntity == null || mParameters == null) {
+			Debug.LogError("[AInteraction] Start abort");
 			enabled = false;
 			return;
 		}
@@ -175,6 +181,7 @@ public abstract class AInteraction : MonoBehaviour
 
 		if (sEntityTypeCounter == null)
 			sEntityTypeCounter = new int[(int)EntityParameters.EntityType.COUNT];
+
 	}
 
 	protected abstract void PostPoppingEntity();
@@ -185,12 +192,11 @@ public abstract class AInteraction : MonoBehaviour
 	public void UpdateAvailableInteraction()
 	{
 		foreach (ItemInteraction lAnimationParameter in mItemInteractions) {
-
 			foreach (EntityParameters.EntityType lType in lAnimationParameter.InteractWith) {
-				if (sEntityTypeCounter[(int)lType] > 0)
+				if (sEntityTypeCounter[(int)lType] > 0) {
 					lAnimationParameter.DisplayUI();
+				}
 			}
-
 		}
 	}
 
@@ -205,8 +211,9 @@ public abstract class AInteraction : MonoBehaviour
 				bool lValueWasZero = sEntityTypeCounter[lIndex] == 0;
 				sEntityTypeCounter[lIndex]++;
 
-				if (lValueWasZero && sEntityTypeCounter[lIndex] == 1)
+				if (lValueWasZero && sEntityTypeCounter[lIndex] == 1) {
 					FireOnTypeAppear(mParameters.Type);
+				}
 			}
 		}
 	}

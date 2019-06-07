@@ -62,7 +62,7 @@ public sealed class TimelineManager : MonoBehaviour
 		mTimeline = (TimelineAsset)mDirector.playableAsset;
 		mData = new TimelineData(mTimeline, mDirector);
 		ClearTimeline();
-		SetGlobalSpeed(1F);
+		//SetGlobalSpeed(1F);
 	}
 
 	public void AddAnimation(GameObject iObject, AnimAction iAction, AnimationParameters iParams)
@@ -158,7 +158,6 @@ public sealed class TimelineManager : MonoBehaviour
 	public void Play()
 	{
 		mDirector.Play();
-		mDirector.playableGraph.GetRootPlayable(0).SetSpeed(AnimationInfo.sGlobalSpeed);
 		TimelineEvent.OnPlay(null);
 	}
 
@@ -175,13 +174,13 @@ public sealed class TimelineManager : MonoBehaviour
 		AEntity.ForEachEntities(iEntity => iEntity.ResetWorldState());
 	}
 
-	public void SetGlobalSpeed(float iSpeedMultiplier)
-	{
-		AnimationInfo.sGlobalSpeed = iSpeedMultiplier;
-		if (mDirector.playableGraph.IsValid() && mDirector.playableGraph.IsPlaying()) {
-			mDirector.playableGraph.GetRootPlayable(0).SetSpeed(AnimationInfo.sGlobalSpeed);
-		}
-	}
+	//public void SetGlobalSpeed(float iSpeedMultiplier)
+	//{
+	//	AnimationInfo.sGlobalSpeed = iSpeedMultiplier;
+	//	if (mDirector.playableGraph.IsValid() && mDirector.playableGraph.IsPlaying()) {
+	//		mDirector.playableGraph.GetRootPlayable(0).SetSpeed(AnimationInfo.sGlobalSpeed);
+	//	}
+	//}
 
 	private void ClearTimeline()
 	{

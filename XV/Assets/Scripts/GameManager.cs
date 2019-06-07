@@ -180,12 +180,13 @@ public class GameManager : MonoBehaviour
 		oGameObject.name = iODS.PrefabName + "_mesh";
 		oGameObject.transform.localScale = iODS.Scale;
 
-		// Setting GameEntity
+		// Setting ObjectEntity
 		ObjectEntity lObjectEntity = oGameObject.AddComponent<ObjectEntity>()
 				   .StartAnimation(iAnimatedPopping)
 				   .SaveEntity()
 				   .SetSize(lBounds.size);
 
+		// Setting AEntity
 		lObjectEntity.InitDataScene(mCurrentDataScene);
 		lObjectEntity.SetObjectDataScene(iODS);
 		lObjectEntity.SetUIBubbleInfo(lUIBubbleInfo.GetComponent<UIBubbleInfo>());

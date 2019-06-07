@@ -7,7 +7,6 @@ using UnityEngine.AI;
 [RequireComponent(typeof(MovableEntity))]
 public class HumanInteractable : AInteraction
 {
-
 	private MovableEntity mMovableEntity;
 
 	protected override void Start()
@@ -15,7 +14,6 @@ public class HumanInteractable : AInteraction
 		base.Start();
 
 		mMovableEntity = GetComponent<MovableEntity>();
-
 	}
 
 	protected override void PostPoppingEntity()
@@ -64,8 +62,8 @@ public class HumanInteractable : AInteraction
 							TargetType = AnimationParameters.AnimationTargetType.ENTITY,
 							AnimationTarget = lEntityParam.gameObject,
 						};
-						//TimelineManager.Instance.AddAnimation(gameObject, TakeAnObject, lAnimationParameters);
-						TimelineManager.Instance.AddAnimation(gameObject, TakeObject);
+						TimelineManager.Instance.AddAnimation(gameObject, TakeObject, lAnimationParameters);
+						//TimelineManager.Instance.AddAnimation(gameObject, TakeObject, new AnimationParameters());
 						return false;
 					}
 					Debug.LogWarning("[TARGET SELECTOR] The object you click on is not interactable with this object !");

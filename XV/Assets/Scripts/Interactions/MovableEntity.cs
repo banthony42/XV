@@ -258,9 +258,9 @@ public sealed class MovableEntity : MonoBehaviour
 			// TODO Calcul movement duration ...
 
 			// Add the code that do the animation in the Action timeline
-			TimelineManager.Instance.AddTranslation(gameObject, iInfo => {
+			TimelineManager.Instance.AddAnimation(gameObject, iInfo => {
 				return Move(lHitPoint, iInfo);
-			});
+			}, new AnimationParameters {Speed = 1});
 
 		}
 	}

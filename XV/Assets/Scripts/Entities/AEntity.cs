@@ -55,12 +55,13 @@ public abstract class AEntity : MonoBehaviour
 		if (mEntityParameters != null && GetComponent<AInteraction>() == null)
 			gameObject.AddComponent<GenericInteraction>();
 
+		//mAInteraction = GetComponent<AInteraction>();
+
 		PostPoppingAction.Add(() => {
 			if (mODS.IsColored) {
 				mODS.IsColored = false; // This will be reset to true in the followed SetColored
 				// We set it to false because if IsColored is true, it will not save the default texture
 				SetColored(mODS.Color);
-
 			}
 		});
 	}
@@ -93,6 +94,7 @@ public abstract class AEntity : MonoBehaviour
 	public AEntity SetUIBubbleInfo(UIBubbleInfo iBubbleInfo)
 	{
 		mUIBubbleInfo = iBubbleInfo;
+
 		mUIBubbleInfo.Parent = this;
 		if (mODS != null)
 			mUIBubbleInfo.SetUIName(mODS.Name);
@@ -163,7 +165,6 @@ public abstract class AEntity : MonoBehaviour
 		if (!mODS.IsColored)
 			return;
 		
-		Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
 		Utils.BrowseChildRecursively(gameObject, (iObject) => {
 
 			Renderer lR = iObject.GetComponent<Renderer>();
@@ -220,7 +221,7 @@ public abstract class AEntity : MonoBehaviour
 		mODS.IsColored = true;
 		mODS.OriginalColorsMaterial = new List<Color>(mOriginalColorsMaterial);
 		mDataScene.Serialize();
-		Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
+		//Debug.Log("Queue size : " + mOriginalColorsMaterial.Count);
 	}
 
 	// This function Instantiate associated Model & make it child of OffsetRotation
@@ -232,20 +233,20 @@ public abstract class AEntity : MonoBehaviour
 		Material lGhostMaterial = null;
 
 		if ((lGhostMaterial = Resources.Load<Material>(GameManager.UI_MATERIAL + "Ghost")) == null) {
-			Debug.LogError("Load material : 'Ghost' failed.");
+			Debug.LogError("[AENTITY] Load material : 'Ghost' failed.");
 			return null;
 		}
 
 		if (mODS.Type == ObjectDataSceneType.BUILT_IN) {
 			lGameObject = ModelLoader.Instance.GetModelGameObject(mODS.PrefabName);
 			if (lGameObject == null) {
-				Debug.LogError("Load prefab " + mODS.PrefabName + " failed.");
+				Debug.LogError("[AENTITY] Load prefab " + mODS.PrefabName + " failed.");
 				return null;
 			}
 		} else {
 			lGameObject = ModelLoader.Instance.GetModelGameObject(mODS.PrefabName);
 			if (lGameObject == null) {
-				Debug.LogError("Load model " + mODS.PrefabName + " failed.");
+				Debug.LogError("[AENTITY] Load model " + mODS.PrefabName + " failed.");
 				return null;
 			}
 		}

@@ -50,7 +50,7 @@ public class UIBubbleInfo : MonoBehaviour
 				transform.position - Camera.main.transform.position);
 
 			transform.rotation = Quaternion.Slerp(
-				transform.rotation, lLookAt, Time.deltaTime * 2);
+				transform.rotation, lLookAt, Time.deltaTime * 5);
 
 			if (ModelName.isFocused)
 				GameManager.Instance.KeyboardDeplacementActive = false;

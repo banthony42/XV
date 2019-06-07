@@ -61,7 +61,6 @@ public class ObjectEntity : AEntity
 		mUIBubbleInfo.GetComponent<RectTransform>().localPosition = new Vector3(0, mSize.y + 1, 0);
 
 		StartCoroutine(PostPoppingAsync());
-
 	}
 
 	private void Update()
@@ -268,7 +267,7 @@ public class ObjectEntity : AEntity
 	public ObjectEntity SaveEntity()
 	{
 		if (mODS != null) {
-			mODS.Position = transform.position;;
+			mODS.Position = transform.position; ;
 			mODS.Rotation = transform.rotation.eulerAngles;
 			mODS.Scale = transform.localScale;
 			mDataScene.Serialize();
