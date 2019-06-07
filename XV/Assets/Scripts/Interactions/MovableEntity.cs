@@ -295,7 +295,6 @@ public sealed class MovableEntity : MonoBehaviour
 		mAgent.enabled = true;
 		// Update speed
 		mAgent.ResetPath();
-		Debug.LogError((iInfo.Parameters == null));
 		mAgent.speed *= iInfo.Parameters.Speed;
 		mAgent.acceleration *= iInfo.Parameters.Speed;
 		mAgent.SetDestination(iDestination);
@@ -313,7 +312,6 @@ public sealed class MovableEntity : MonoBehaviour
 						if (lAction != null)
 							lAction();
 					}
-					Debug.Log("end");
 
 					return true;
 				}
