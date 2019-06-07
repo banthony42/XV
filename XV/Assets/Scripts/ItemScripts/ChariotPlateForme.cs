@@ -88,8 +88,8 @@ public sealed class ChariotPlateForme : AInteraction
                             TargetType = AnimationParameters.AnimationTargetType.ENTITY,
                             AnimationTarget = lEntityParam.gameObject,
                         };
-                        //TimelineManager.Instance.AddAnimation(gameObject, TakeAnObject, lAnimationParameters);
-                        TimelineManager.Instance.AddAnimation(gameObject, TakeAnObject);
+                        TimelineManager.Instance.AddAnimation(gameObject, TakeAnObject, lAnimationParameters);
+                        //TimelineManager.Instance.AddAnimation(gameObject, TakeAnObject);
                         return false;
                     }
                     Debug.LogError("[TARGET SELECTOR] The object you click on is not interactable with this object !");

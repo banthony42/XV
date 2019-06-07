@@ -62,16 +62,28 @@ public sealed class TimelineManager : MonoBehaviour
 		mTimeline = (TimelineAsset)mDirector.playableAsset;
 		mData = new TimelineData(mTimeline, mDirector);
 		ClearTimeline();
+		SetGlobalSpeed(1F);
 	}
 
-	public void AddAnimation(GameObject iObject, AnimAction iAction)
+	public void AddAnimation(GameObject iObject, AnimAction iAction, AnimationParameters iParams)
 	{
 		if (iObject != null) {
 			int lID = iObject.GetInstanceID();
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ANIMATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.ANIMATION, iParams);
+		}
+	}
+
+	public void AddInteraction(GameObject iObject, List<InteractionStep> iSteps)
+	{
+		if (iObject != null) {
+			int lID = iObject.GetInstanceID();
+			if (!mData.TrackExists(lID)) {
+				mData.CreateTrack(iObject);
+			}
+			mData.CreateInteractionEventClip(lID, iSteps);
 		}
 	}
 
@@ -82,7 +94,7 @@ public sealed class TimelineManager : MonoBehaviour
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.TRANSLATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.TRANSLATION);
 		}
 	}
 
@@ -93,7 +105,7 @@ public sealed class TimelineManager : MonoBehaviour
 			if (!mData.TrackExists(lID)) {
 				mData.CreateTrack(iObject);
 			}
-			mData.CreateEventClip(lID, iAction, TimelineData.TrackType.ROTATION);
+			mData.CreateEventClip(lID, iAction, TimelineData.EventType.ROTATION);
 		}
 	}
 
@@ -111,9 +123,10 @@ public sealed class TimelineManager : MonoBehaviour
 
 	public void Rebuild()
 	{
-		mData.RebuildTracksOfType(TimelineData.TrackType.ANIMATION);
-		mData.RebuildTracksOfType(TimelineData.TrackType.TRANSLATION);
-		mData.RebuildTracksOfType(TimelineData.TrackType.ROTATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.ANIMATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.TRANSLATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.ROTATION);
+		mData.RebuildTracksOfType(TimelineData.EventType.INTERACTION);
 	}
 
 	public GameObject GetObjectFromID(int iID)
@@ -145,6 +158,7 @@ public sealed class TimelineManager : MonoBehaviour
 	public void Play()
 	{
 		mDirector.Play();
+		mDirector.playableGraph.GetRootPlayable(0).SetSpeed(AnimationInfo.sGlobalSpeed);
 		TimelineEvent.OnPlay(null);
 	}
 
@@ -159,6 +173,14 @@ public sealed class TimelineManager : MonoBehaviour
 		mDirector.Stop();
 		TimelineEvent.OnStop(null);
 		AEntity.ForEachEntities(iEntity => iEntity.ResetWorldState());
+	}
+
+	public void SetGlobalSpeed(float iSpeedMultiplier)
+	{
+		AnimationInfo.sGlobalSpeed = iSpeedMultiplier;
+		if (mDirector.playableGraph.IsValid() && mDirector.playableGraph.IsPlaying()) {
+			mDirector.playableGraph.GetRootPlayable(0).SetSpeed(AnimationInfo.sGlobalSpeed);
+		}
 	}
 
 	private void ClearTimeline()

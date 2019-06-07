@@ -149,7 +149,7 @@ public sealed class MovableEntity : MonoBehaviour
 					mAgent.stoppingDistance = LIMIT;
 					// Disable it until is not use
 					mAgent.enabled = false;
- 				}
+				}
 
 				// Get the NavMeshObstacle to perform mutual exclusion with NavMeshAgent
 				mEntityObstacle = GetComponent<NavMeshObstacle>();
@@ -251,7 +251,6 @@ public sealed class MovableEntity : MonoBehaviour
 		ResetMode();
 
 		Vector3 lHitPoint = Vector3.zero;
-		//float lActionDuration = 0F;
 
 		// Check the hit.point clicked is the ground
 		if ((GetHitPointFromMouseClic(ref lHitPoint, "scene"))) {
@@ -262,8 +261,6 @@ public sealed class MovableEntity : MonoBehaviour
 			TimelineManager.Instance.AddTranslation(gameObject, iInfo => {
 				return Move(lHitPoint, iInfo);
 			});
-
-			//OnStartMove();
 
 		}
 	}
@@ -296,8 +293,8 @@ public sealed class MovableEntity : MonoBehaviour
 		mAgent.enabled = true;
 		// Update speed
 		mAgent.ResetPath();
-		mAgent.speed *= iInfo.Speed;
-		mAgent.acceleration *= iInfo.Speed;
+		mAgent.speed *= iInfo.Parameters.Speed;
+		mAgent.acceleration *= iInfo.Parameters.Speed;
 		mAgent.SetDestination(iDestination);
 
 		// Check if we have reached the destination
@@ -323,75 +320,8 @@ public sealed class MovableEntity : MonoBehaviour
 			if (lAction != null)
 				lAction();
 		}
-		Debug.Log("beginner");
 		return false;
 	}
-
-	//public MoveStatus Move(Vector3 iDestination, AnimationInfo iInfo)
-	//{
-	//    if (AnimationInfo.sGlobalState == AnimationInfo.State.STOP)
-	//    {
-	//        mAgent.enabled = false;
-	//        return MoveStatus.TRUE;
-	//    }
-
-	//    if (AnimationInfo.sGlobalState == AnimationInfo.State.PAUSE)
-	//    {
-	//        mAgent.enabled = false;
-	//        return MoveStatus.FALSE;
-	//    }
-
-	//    // Check NavMesh component are present
-	//    if (mEntityObstacle == null || mAgent == null)
-	//    {
-	//        Debug.LogError("NavMeshAgent or NavMeshObstacle are missing.");
-	//        return MoveStatus.TRUE;
-	//    }
-
-	//    // Disable Obstacle
-	//    if (mEntityObstacle.enabled)
-	//    {
-	//        mEntityObstacle.enabled = false;
-	//        return MoveStatus.FALSE;
-	//    }
-
-	//    // Active Agent
-	//    mAgent.enabled = true;
-	//    // Update speed
-	//    mAgent.ResetPath();
-	//    mAgent.speed *= iInfo.Speed;
-	//    mAgent.acceleration *= iInfo.Speed;
-	//    mAgent.SetDestination(iDestination);
-
-	//    // Check if we have reached the destination
-	//    if (!mAgent.pathPending)
-	//    {
-	//        if (mAgent.remainingDistance <= mAgent.stoppingDistance)
-	//        {
-	//            if (!mAgent.hasPath || mAgent.velocity.sqrMagnitude <= float.Epsilon)
-	//            {
-	//                // Switch into obstacle mode
-	//                mAgent.enabled = false;
-	//                mEntityObstacle.enabled = true;
-	//                // End of this Action
-
-	//                foreach (Action lAction in OnEndMovement)
-	//                {
-	//                    if (lAction != null)
-	//                        lAction();
-	//                }
-
-	//                return MoveStatus.TRUE;
-	//            }
-	//        }
-	//    }
-	//    foreach (Action lAction in OnStartMovement)
-	//    {
-	//        if (lAction != null)
-	//            lAction();
-	//    }
-	//    return MoveStatus.END;
-	//}
 
 	private void Rotate(Quaternion iTarget)
 	{
@@ -415,7 +345,7 @@ public sealed class MovableEntity : MonoBehaviour
 			}
 
 			// Update rotation performed according to speed
-			mRotationPerformed += Time.deltaTime * iInfo.Speed;
+			mRotationPerformed += Time.deltaTime * iInfo.Parameters.Speed;
 
 			// Rotate to the correct amount
 			gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, iTarget, mRotationPerformed / lActionDuration);

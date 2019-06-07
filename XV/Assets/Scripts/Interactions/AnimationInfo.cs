@@ -12,11 +12,6 @@ public class AnimationInfo
 	public static State sGlobalState;
 
 	/// <summary>
-	/// Speed coefficient of the animation.
-	/// </summary>
-	public float Speed;
-
-	/// <summary>
 	/// The parameters use by the Implementation of the Animation.
 	/// </summary>
 	public AnimationParameters Parameters;

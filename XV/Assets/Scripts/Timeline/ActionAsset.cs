@@ -8,14 +8,22 @@ using AnimAction = System.Predicate<AnimationInfo>;
 
 public class ActionAsset : PlayableAsset
 {
-	public AnimAction AttachedAction { get; set; }
+	public List<AnimAction> Actions { get; set; }
+	public List<AnimationParameters> Parameters { get; set; }
 	public ActionTrack Track { get; set; }
+
+	public void Awake()
+	{
+		Actions = new List<AnimAction>();
+		Parameters = new List<AnimationParameters>();
+	}
 
 	public override Playable CreatePlayable(PlayableGraph iGraph, GameObject iOwner)
 	{
 		ScriptPlayable<ActionBehaviour> lPlayable = ScriptPlayable<ActionBehaviour>.Create(iGraph);
 		ActionBehaviour lBehaviour = lPlayable.GetBehaviour();
-		lBehaviour.AttachedAction = AttachedAction;
+		lBehaviour.Actions = Actions;
+		lBehaviour.Parameters = Parameters;
 		lBehaviour.Track = Track;
 		return lPlayable;
 	}

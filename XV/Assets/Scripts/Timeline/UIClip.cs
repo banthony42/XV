@@ -33,7 +33,7 @@ public class UIClip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPo
 	}
 
 	public UITrack Track { get; private set; }
-	public TimelineData.TrackType Type { get; set; }
+	public TimelineData.EventType Type { get; set; }
 
     private void Awake() {
         mTrackRectTransform = transform.parent as RectTransform;
@@ -43,7 +43,7 @@ public class UIClip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPo
 
     public void OnPointerDown(PointerEventData iData) {
 		Vector2 lLocalPointerPosition;
-		if (Type != TimelineData.TrackType.ANIMATION) {
+		if (Type != TimelineData.EventType.ANIMATION) {
         	mRectTransform.SetAsLastSibling();
 		}
 		RectTransformUtility.ScreenPointToLocalPointInRectangle(mTrackRectTransform, iData.position, iData.pressEventCamera, out lLocalPointerPosition);
