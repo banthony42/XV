@@ -3,7 +3,7 @@
 
 **Nous avons besoin de montrer concrètement ce qu’on fait dans nos usines et nos
 entrepôts.
-Les logiciels de l’industrie sont aujourd’hui sont beaucoup trop onéreux, non fonctionnels
+Les logiciels de l’industrie sont aujourd’hui beaucoup trop onéreux, non fonctionnels
 (on ne voit pas un homme faire un mouvement proche de la réalité) et possèdent des
 décors dignes des plus mauvais jeux de PlayStation 1.
 Après une étude du meilleur outil pour notre projet, nous avons choisi la technologie
@@ -26,3 +26,6 @@ https://github.com/banthony42
 https://github.com/VelocityPulse
 
 https://github.com/4quet
+
+# Demo
+https://www.youtube.com/watch?v=red-O5bfLmw&t=1s
